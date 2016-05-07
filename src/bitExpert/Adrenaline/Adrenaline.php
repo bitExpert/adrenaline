@@ -74,11 +74,11 @@ class Adrenaline extends AdroitMiddleware
      * @param EmitterInterface|null $emitter
      */
     public function __construct(
-        RoutingMiddleware $routingMiddleware, 
-        ActionMiddleware $actionMiddleware, 
+        RoutingMiddleware $routingMiddleware,
+        ActionMiddleware $actionMiddleware,
         ResponderMiddleware $responderMiddleware,
-        EmitterInterface $emitter = null)
-    {
+        EmitterInterface $emitter = null
+    ) {
         $this->routingMiddleware = $routingMiddleware;
         $this->defaultRouteClass = Route::class;
         $this->beforeRoutingMiddlewares = [];
@@ -119,7 +119,10 @@ class Adrenaline extends AdroitMiddleware
             ServerRequestInterface $request,
             ResponseInterface $response,
             $err = null
-        ) use ($errorHandler, $out) {
+        ) use (
+            $errorHandler,
+            $out
+        ) {
 
             if (!$err) {
                 if ($out) {
@@ -361,9 +364,23 @@ class Adrenaline extends AdroitMiddleware
     {
         $router = new Psr7Router();
 
-        $routingMiddleware = new BasicRoutingMiddleware($router, $routingResultAttribute);
-        $actionMiddleware = new ActionResolverMiddleware($actionResolvers, $routingResultAttribute, Payload::class, true);
-        $responderMiddleware = new ResponderResolverMiddleware($responderResolvers, Payload::class, true);
+        $routingMiddleware = new BasicRoutingMiddleware(
+            $router,
+            $routingResultAttribute
+        );
+
+        $actionMiddleware = new ActionResolverMiddleware(
+            $actionResolvers,
+            $routingResultAttribute,
+            Payload::class,
+            true
+        );
+
+        $responderMiddleware = new ResponderResolverMiddleware(
+            $responderResolvers,
+            Payload::class,
+            true
+        );
 
         return new self($routingMiddleware, $actionMiddleware, $responderMiddleware);
     }
@@ -381,13 +398,31 @@ class Adrenaline extends AdroitMiddleware
      * @param Router $router
      * @return Adrenaline
      */
-    public static function strict($actionResolvers, $responderResolvers, Router $router = null, EmitterInterface $emitter = null)
-    {
+    public static function strict(
+        $actionResolvers,
+        $responderResolvers,
+        Router $router = null,
+        EmitterInterface $emitter = null
+    ) {
         $router = $router ?: new Psr7Router();
 
-        $routingMiddleware = new BasicRoutingMiddleware($router, RoutingResult::class);
-        $actionMiddleware = new ActionResolverMiddleware($actionResolvers, RoutingResult::class, Payload::class, true);
-        $responderMiddleware = new ResponderResolverMiddleware($responderResolvers, Payload::class, true);
+        $routingMiddleware = new BasicRoutingMiddleware(
+            $router,
+            RoutingResult::class
+        );
+
+        $actionMiddleware = new ActionResolverMiddleware(
+            $actionResolvers,
+            RoutingResult::class,
+            Payload::class,
+            true
+        );
+
+        $responderMiddleware = new ResponderResolverMiddleware(
+            $responderResolvers,
+            Payload::class,
+            true
+        );
 
         return new self($routingMiddleware, $actionMiddleware, $responderMiddleware, $emitter);
     }
@@ -405,12 +440,25 @@ class Adrenaline extends AdroitMiddleware
      * @param Router $router
      * @return Adrenaline
      */
-    public static function lenient($actionResolvers, $responderResolvers, Router $router = null, EmitterInterface $emitter = null)
-    {
+    public static function lenient(
+        $actionResolvers,
+        $responderResolvers,
+        Router $router = null,
+        EmitterInterface $emitter = null
+    ) {
         $router = $router ?: new Psr7Router();
 
-        $routingMiddleware = new BasicRoutingMiddleware($router, RoutingResult::class);
-        $actionMiddleware = new ActionResolverMiddleware($actionResolvers, RoutingResult::class, Payload::class);
+        $routingMiddleware = new BasicRoutingMiddleware(
+            $router,
+            RoutingResult::class
+        );
+
+        $actionMiddleware = new ActionResolverMiddleware(
+            $actionResolvers,
+            RoutingResult::class,
+            Payload::class
+        );
+
         $responderMiddleware = new ResponderResolverMiddleware($responderResolvers, Payload::class);
 
         return new self($routingMiddleware, $actionMiddleware, $responderMiddleware, $emitter);

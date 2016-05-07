@@ -10,7 +10,6 @@
  */
 namespace bitExpert\Adrenaline\Responder;
 
-
 interface Responder extends \bitExpert\Adroit\Responder\Responder
 {
 

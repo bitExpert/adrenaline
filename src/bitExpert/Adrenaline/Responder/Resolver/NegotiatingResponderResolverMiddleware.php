@@ -42,11 +42,12 @@ class NegotiatingResponderResolverMiddleware extends ResponderResolverMiddleware
      * @throws \InvalidArgumentException
      */
     public function __construct(
-        array $resolvers = [],
+        array $resolvers,
         $domainPayloadAttribute,
         ContentNegotiationService $negotiationService,
-        $strict = false)
-    {
+        $strict = false
+    ) {
+    
         parent::__construct($resolvers, $domainPayloadAttribute, $strict);
         $this->negotiationService = $negotiationService;
     }

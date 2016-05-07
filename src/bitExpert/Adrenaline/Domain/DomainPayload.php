@@ -116,7 +116,7 @@ class DomainPayload implements Payload, \JsonSerializable
     /**
      * @inheritdoc
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->getValues();
     }

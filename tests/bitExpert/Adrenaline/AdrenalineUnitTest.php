@@ -65,7 +65,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     {
         $app = Adrenaline::lenient([], [], null, $this->emitter);
         $called = false;
-        $errorHandler = function (ServerRequestInterface $request, ResponseInterface $response, $err) use (&$called){
+        $errorHandler = function (ServerRequestInterface $request, ResponseInterface $response, $err) use (&$called) {
             $called = true;
             return $response;
         };
@@ -98,7 +98,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $routingMiddlewareStub = $this->createTestMiddleware(function () use(&$order) {
+        $routingMiddlewareStub = $this->createTestMiddleware(function () use (&$order) {
             $order[] = 'routing';
         });
 
@@ -182,7 +182,6 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
 
         $routingMiddleware = $this->getMockBuilder(RoutingMiddleware::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__invoke'])
             ->getMock();
 
         $routingMiddleware->expects($this->any())
@@ -192,7 +191,6 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
 
         $actionMiddleware = $this->getMockBuilder(ActionMiddleware::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__invoke'])
             ->getMock();
 
         $actionMiddleware->expects($this->any())
@@ -201,7 +199,6 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
 
         $responderMiddleware = $this->getMockBuilder(ResponderMiddleware::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__invoke'])
             ->getMock();
 
         $responderMiddleware->expects($this->any())
@@ -349,7 +346,15 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
 
         $defaultRouteClass = DeeplyInheritedRoute::class;
 
-        $router = $this->createRouteCreationTestRouter(strtoupper('GET'), $name, $path, $target, $matchers, $defaultRouteClass);
+        $router = $this->createRouteCreationTestRouter(
+            strtoupper('GET'),
+            $name,
+            $path,
+            $target,
+            $matchers,
+            $defaultRouteClass
+        );
+
         $app = Adrenaline::lenient([], [], $router, $this->emitter);
         $app->setDefaultRouteClass(DeeplyInheritedRoute::class);
         $app->get($name, $path, $target, $matchers);
@@ -369,7 +374,8 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
      */
     public function outGetsCalledIfGivenAndNoErrorHandlerIsSet()
     {
-        $called = false;;
+        $called = false;
+        ;
         $app = Adrenaline::lenient([], [], null, $this->emitter);
         $app($this->request, $this->response, function () use (&$called) {
             $called = true;
@@ -401,12 +407,23 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             })->named('home')
         );
 
-        $app->setErrorHandler(function (ServerRequestInterface $request, ResponseInterface $response, $err) use (&$called) {
+        $app->setErrorHandler(function (
+            ServerRequestInterface $request,
+            ResponseInterface $response,
+            $err
+        ) use (
+            &$called
+        ) {
             $called[] = 'errCalled';
             return $response;
         });
 
-        $app($this->request, $this->response, function (ServerRequestInterface $request, ResponseInterface $response) use (&$called) {
+        $app($this->request, $this->response, function (
+            ServerRequestInterface $request,
+            ResponseInterface $response
+        ) use (
+            &$called
+        ) {
             $called[] = 'outCalled';
             return $response;
         });
@@ -434,12 +451,23 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
 
         $app = Adrenaline::lenient([$resolver], [], null, $this->emitter);
 
-        $app->setErrorHandler(function (ServerRequestInterface $request, ResponseInterface $response, $err) use (&$called) {
+        $app->setErrorHandler(function (
+            ServerRequestInterface $request,
+            ResponseInterface $response,
+            $err
+        ) use (
+            &$called
+        ) {
             $called[] = 'errCalled';
             return $response;
         });
 
-        $app($this->request, $this->response, function (ServerRequestInterface $request, ResponseInterface $response) use (&$called) {
+        $app($this->request, $this->response, function (
+            ServerRequestInterface $request,
+            ResponseInterface $response
+        ) use (
+            &$called
+        ) {
             $called[] = 'outCalled';
             return $response;
         });
@@ -448,8 +476,8 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Returns a middleware. You may define an additional callable which will be executed in front of the default behavior
-     * for testing purpose (e.g. testing call order)
+     * Returns a middleware. You may define an additional callable which will be executed
+     * in front of the default behavior for testing purpose (e.g. testing call order)
      *
      * @param callable|null $specializedFn
      * @return \Closure
@@ -514,7 +542,15 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             ->method('addRoute')
             ->will($this->returnCallback(function (
                 Route $route
-            ) use ($self, $method, $name, $path, $target, $matchers, $class) {
+            ) use (
+                $self,
+                $method,
+                $name,
+                $path,
+                $target,
+                $matchers,
+                $class
+) {
                 if ($class !== null) {
                     $this->assertEquals(get_class($route), $class);
                 }

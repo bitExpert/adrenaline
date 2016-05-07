@@ -20,7 +20,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
 
-
 /**
  * Unit test for {@link \bitExpert\Adrenaline\Action\AbstractAction}.
  */

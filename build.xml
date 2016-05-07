@@ -7,6 +7,7 @@
               passthru="true"
               checkreturn="true">
             <arg value="--standard=PSR2"/>
+            <arg value="--ignore=tests/bitExpert/Adrenaline/Helper/*"/>
             <arg path="${phing.dir}/src"/>
             <arg path="${phing.dir}/tests"/>
         </exec>
