@@ -389,7 +389,7 @@ class Adrenaline extends AdroitMiddleware
      * Creates a new {@link \bitExpert\Adrenaline\Adrenaline} using the default middlewares
      * for routing, action resolving and responder resolving
      *
-     * This factory method should be used, when creating a productive application with sensible defaults,
+     * This factory method should be used, when creating a large application which needs to be well structured,
      * if you don't need any customizations concerning the basic middlewares (Routing, Action, Responder)
      *
      * @param $actionResolvers
@@ -431,7 +431,7 @@ class Adrenaline extends AdroitMiddleware
      * Creates a new {@link \bitExpert\Adrenaline\Adrenaline} using the default middlewares
      * for routing, action resolving and responder resolving
      *
-     * This factory method should be used, when creating a productive application with sensible defaults,
+     * This factory method should be used, when creating a small application with sensible defaults,
      * if you don't need any customizations concerning the basic middlewares (Routing, Action, Responder)
      *
      * @param $actionResolvers
@@ -471,12 +471,14 @@ class Adrenaline extends AdroitMiddleware
      * This factory method may be used for rapid development of prototypes and is not recommended for production usage,
      * since your code will look not that pretty and will likely not be well structured
      *
+     * @param $responderResolvers;
      * @return Adrenaline
      */
-    public static function prototyping()
+    public static function prototyping($responderResolvers = [])
     {
         $actionResolvers = [new CallableActionResolver()];
-        $responderResolvers = [new CallableResponderResolver()];
+        $responderResolvers = is_array($responderResolvers) ? $responderResolvers : [$responderResolvers];
+        array_unshift($responderResolvers, new CallableResponderResolver());
 
         return self::lenient($actionResolvers, $responderResolvers);
     }
