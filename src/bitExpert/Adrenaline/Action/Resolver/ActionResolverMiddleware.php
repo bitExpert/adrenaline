@@ -10,25 +10,15 @@
  */
 namespace bitExpert\Adrenaline\Action\Resolver;
 
-use bitExpert\Adrenaline\Action\Action;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * ActionResolverMiddleware which deals with {@link \bitExpert\Pathfinder\RoutingResult}
+ * Extends the behavior of the Adroit ActionResolverMiddleware to be able to deal with
+ * Pathfinder RoutingResults. It extracts the target from the result's route and returns it
+ * as identifier
  */
 class ActionResolverMiddleware extends \bitExpert\Adroit\Action\Resolver\ActionResolverMiddleware
 {
-    /**
-     * @var bool
-     */
-    protected $strictMode;
-    
-    public function __construct($resolvers, $routingResultAttribute, $domainPayloadAttribute, $strictMode = false)
-    {
-        $this->strictMode = (bool) $strictMode;
-        parent::__construct($resolvers, $routingResultAttribute, $domainPayloadAttribute);
-    }
-
     /**
      * @inheritdoc
      */
@@ -36,34 +26,11 @@ class ActionResolverMiddleware extends \bitExpert\Adroit\Action\Resolver\ActionR
     {
         /** @var \bitExpert\Pathfinder\RoutingResult $routingResult */
         $routingResult = parent::getIdentifier($request);
-        if (empty($routingResult)) {
-            throw new \RuntimeException(sprintf(
-                'Could not fetch a routing result from request attribute "%s"',
-                $this->routingResultAttribute
-            ));
-        }
 
-        if ($routingResult->failed()) {
+        if (!$routingResult || $routingResult->failed()) {
             return null;
         }
 
         return $routingResult->getRoute()->getTarget();
-    }
-    
-    protected function isValidResult($result)
-    {
-        if (!$this->strictMode) {
-            return parent::isValidResult($result);
-        } else {
-            $valid = ($result instanceof Action);
-            if (!$valid) {
-                throw new \RuntimeException(sprintf(
-                    'Working in strict mode, therefore actions have to implement "%s"',
-                    Action::class
-                ));
-            }
-
-            return true;
-        }
     }
 }

@@ -19,7 +19,7 @@
   "require": {
     "php": "^5.5|^7.0",
     "bitexpert/pathfinder": "dev-master",
-    "bitexpert/adroit": "dev-feature/middleware_split",
+    "bitexpert/adroit": "dev-master",
     "bitexpert/slf4psrlog": "^0.1.0",
     "zendframework/zend-stratigility": "^1.1.0",
     "zendframework/zend-diactoros": "^1.0.0",
@@ -54,7 +54,7 @@
     },
     {
       "type": "git",
-      "url": "https://github.com/dropdevcoding/adroit"
+      "url": "https://github.com/bitExpert/adroit"
     }
   ]
 }

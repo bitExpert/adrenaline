@@ -12,6 +12,7 @@ namespace bitExpert\Adrenaline\Responder\Resolver;
 
 use bitExpert\Adrenaline\Accept\ContentNegotiationService;
 use Psr\Http\Message\ServerRequestInterface;
+use bitExpert\Adroit\Responder\Resolver\ResponderResolverMiddleware;
 
 /**
  * The ContentNegotiatingResponderResolver does not resolve responders itself, but
@@ -34,21 +35,21 @@ class NegotiatingResponderResolverMiddleware extends ResponderResolverMiddleware
     protected $negotiationService;
 
     /**
-     * Creates a new {@link \bitExpert\Adroit\Responder\Resolver\NegotiatingResponderResolver}.
+     * Creates a new {@link \bitExpert\Adrenaline\Responder\Resolver\NegotiatingResponderResolver}.
      * @param \bitExpert\Adroit\Responder\Resolver\ResponderResolver[] $resolvers
      * @param string $domainPayloadAttribute
+     * @param string $responderAttribute
      * @param ContentNegotiationService $negotiationService
-     * @param bool $strict
      * @throws \InvalidArgumentException
      */
     public function __construct(
         array $resolvers,
         $domainPayloadAttribute,
-        ContentNegotiationService $negotiationService,
-        $strict = false
+        $responderAttribute,
+        ContentNegotiationService $negotiationService
     ) {
     
-        parent::__construct($resolvers, $domainPayloadAttribute, $strict);
+        parent::__construct($resolvers, $domainPayloadAttribute, $responderAttribute);
         $this->negotiationService = $negotiationService;
     }
 
@@ -67,7 +68,6 @@ class NegotiatingResponderResolverMiddleware extends ResponderResolverMiddleware
                 $resolvers = [$resolvers];
             }
         }
-
         return $resolvers;
     }
 }

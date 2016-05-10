@@ -10,16 +10,11 @@
  */
 namespace bitExpert\Adrenaline;
 
-use bitExpert\Adrenaline\Action\Resolver\ActionResolverMiddleware;
-use bitExpert\Adroit\Responder\Resolver\ResponderResolverMiddleware;
 use bitExpert\Adroit\Action\Resolver\CallableActionResolver;
 use bitExpert\Adroit\AdroitMiddleware;
-use bitExpert\Adroit\Action\ActionMiddleware;
-use bitExpert\Adroit\Domain\Payload;
+use bitExpert\Adrenaline\Action\Resolver\ActionResolverMiddleware;
 use bitExpert\Adroit\Responder\Resolver\CallableResponderResolver;
-use bitExpert\Adroit\Responder\ResponderMiddleware;
 use bitExpert\Pathfinder\Middleware\BasicRoutingMiddleware;
-use bitExpert\Pathfinder\Middleware\RoutingMiddleware;
 use bitExpert\Pathfinder\Psr7Router;
 use bitExpert\Pathfinder\Route;
 use bitExpert\Pathfinder\Router;
@@ -36,10 +31,6 @@ use Zend\Diactoros\Response\SapiEmitter;
  */
 class Adrenaline extends AdroitMiddleware
 {
-    /**
-     * @var RoutingMiddleware
-     */
-    protected $routingMiddleware;
     /**
      * @var callable[]
      */
@@ -60,6 +51,10 @@ class Adrenaline extends AdroitMiddleware
      * @var EmitterInterface
      */
     protected $emitter;
+    /**
+     * @var Router
+     */
+    protected $router;
 
     /**
      * Adrenaline constructor.
@@ -68,18 +63,24 @@ class Adrenaline extends AdroitMiddleware
      * If you don't need any customizations concerning routing / action / responder middlewares
      * please use {@link \bitExpert\Adrenaline\Adrenaline::create} instead
      *
-     * @param RoutingMiddleware $routingMiddleware
-     * @param ActionMiddleware $actionMiddleware
-     * @param ResponderMiddleware $responderMiddleware
+     * @param \bitExpert\Adroit\Action\Resolver\ActionResolver[] $actionResolvers
+     * @param \bitExpert\Adroit\Action\Resolver\ActionResolver[] $responderResolvers
+     * @param Router|null $router
      * @param EmitterInterface|null $emitter
      */
     public function __construct(
-        RoutingMiddleware $routingMiddleware,
-        ActionMiddleware $actionMiddleware,
-        ResponderMiddleware $responderMiddleware,
+        array $actionResolvers = [],
+        array $responderResolvers = [],
+        Router $router = null,
         EmitterInterface $emitter = null
     ) {
-        $this->routingMiddleware = $routingMiddleware;
+        $actionResolvers = count($actionResolvers) ? $actionResolvers : [new CallableActionResolver()];
+        $responderResolvers = count($responderResolvers) ? $responderResolvers : [new CallableResponderResolver()];
+
+        parent::__construct(RoutingResult::class, $actionResolvers, $responderResolvers);
+
+        $this->router = $router ?: new Psr7Router();
+
         $this->defaultRouteClass = Route::class;
         $this->beforeRoutingMiddlewares = [];
         $this->beforeEmitterMiddlewares = [];
@@ -87,8 +88,6 @@ class Adrenaline extends AdroitMiddleware
         $this->emitter = $emitter ?: new SapiEmitter();
 
         $this->errorHandler = null;
-
-        parent::__construct($actionMiddleware, $responderMiddleware);
     }
 
     /**
@@ -96,8 +95,10 @@ class Adrenaline extends AdroitMiddleware
      */
     protected function initialize()
     {
+        $routingMiddleware = $this->getRoutingMiddleware($this->router, RoutingResult::class);
+
         $this->pipeEach($this->beforeRoutingMiddlewares);
-        $this->pipe($this->routingMiddleware);
+        $this->pipe($routingMiddleware);
 
         parent::initialize();
 
@@ -184,13 +185,26 @@ class Adrenaline extends AdroitMiddleware
     }
 
     /**
-     * Returns the used router
+     * Returns the routing middleware to use
      *
-     * @return Router
+     * @param Router $router
+     * @param string $routingResultAttribute
+     * @return \bitExpert\Pathfinder\Middleware\RoutingMiddleware
      */
-    public function getRouter()
+    protected function getRoutingMiddleware(Router $router, $routingResultAttribute)
     {
-        return $this->routingMiddleware->getRouter();
+        return new BasicRoutingMiddleware($router, $routingResultAttribute);
+    }
+
+    /**
+     * @param \bitExpert\Adroit\Action\Resolver\ActionResolver[] $actionResolvers
+     * @param string $routingResultAttribute
+     * @param string $actionAttribute
+     * @return ActionResolverMiddleware
+     */
+    protected function getActionResolverMiddleware($actionResolvers, $routingResultAttribute, $actionAttribute)
+    {
+        return new ActionResolverMiddleware($actionResolvers, $routingResultAttribute, $actionAttribute);
     }
 
     /**
@@ -353,133 +367,7 @@ class Adrenaline extends AdroitMiddleware
      */
     public function addRoute(Route $route)
     {
-        $this->getRouter()->addRoute($route);
+        $this->router->addRoute($route);
         return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function createDefault($routingResultAttribute, array $actionResolvers, array $responderResolvers)
-    {
-        $router = new Psr7Router();
-
-        $routingMiddleware = new BasicRoutingMiddleware(
-            $router,
-            $routingResultAttribute
-        );
-
-        $actionMiddleware = new ActionResolverMiddleware(
-            $actionResolvers,
-            $routingResultAttribute,
-            Payload::class,
-            true
-        );
-
-        $responderMiddleware = new ResponderResolverMiddleware(
-            $responderResolvers,
-            Payload::class,
-            true
-        );
-
-        return new self($routingMiddleware, $actionMiddleware, $responderMiddleware);
-    }
-
-    /**
-     * Creates a new {@link \bitExpert\Adrenaline\Adrenaline} using the default middlewares
-     * for routing, action resolving and responder resolving
-     *
-     * This factory method should be used, when creating a large application which needs to be well structured,
-     * if you don't need any customizations concerning the basic middlewares (Routing, Action, Responder)
-     *
-     * @param $actionResolvers
-     * @param $responderResolvers
-     * @param EmitterInterface|null $emitter
-     * @param Router $router
-     * @return Adrenaline
-     */
-    public static function strict(
-        $actionResolvers,
-        $responderResolvers,
-        Router $router = null,
-        EmitterInterface $emitter = null
-    ) {
-        $router = $router ?: new Psr7Router();
-
-        $routingMiddleware = new BasicRoutingMiddleware(
-            $router,
-            RoutingResult::class
-        );
-
-        $actionMiddleware = new ActionResolverMiddleware(
-            $actionResolvers,
-            RoutingResult::class,
-            Payload::class,
-            true
-        );
-
-        $responderMiddleware = new ResponderResolverMiddleware(
-            $responderResolvers,
-            Payload::class,
-            true
-        );
-
-        return new self($routingMiddleware, $actionMiddleware, $responderMiddleware, $emitter);
-    }
-
-    /**
-     * Creates a new {@link \bitExpert\Adrenaline\Adrenaline} using the default middlewares
-     * for routing, action resolving and responder resolving
-     *
-     * This factory method should be used, when creating a small application with sensible defaults,
-     * if you don't need any customizations concerning the basic middlewares (Routing, Action, Responder)
-     *
-     * @param $actionResolvers
-     * @param $responderResolvers
-     * @param EmitterInterface|null $emitter
-     * @param Router $router
-     * @return Adrenaline
-     */
-    public static function lenient(
-        $actionResolvers,
-        $responderResolvers,
-        Router $router = null,
-        EmitterInterface $emitter = null
-    ) {
-        $router = $router ?: new Psr7Router();
-
-        $routingMiddleware = new BasicRoutingMiddleware(
-            $router,
-            RoutingResult::class
-        );
-
-        $actionMiddleware = new ActionResolverMiddleware(
-            $actionResolvers,
-            RoutingResult::class,
-            Payload::class
-        );
-
-        $responderMiddleware = new ResponderResolverMiddleware($responderResolvers, Payload::class);
-
-        return new self($routingMiddleware, $actionMiddleware, $responderMiddleware, $emitter);
-    }
-
-    /**
-     * Creates a new {@link \bitExpert\Adrenaline\Adrenaline} using {@link \bitExpert\Pathfinder\Psr7Router} as default
-     * router, and {@link \bitExpert\Adroit\Resolver\CallableResolver}s as action resolver and responder resolver
-     *
-     * This factory method may be used for rapid development of prototypes and is not recommended for production usage,
-     * since your code will look not that pretty and will likely not be well structured
-     *
-     * @param $responderResolvers;
-     * @return Adrenaline
-     */
-    public static function prototyping($responderResolvers = [])
-    {
-        $actionResolvers = [new CallableActionResolver()];
-        $responderResolvers = is_array($responderResolvers) ? $responderResolvers : [$responderResolvers];
-        array_unshift($responderResolvers, new CallableResponderResolver());
-
-        return self::lenient($actionResolvers, $responderResolvers);
     }
 }

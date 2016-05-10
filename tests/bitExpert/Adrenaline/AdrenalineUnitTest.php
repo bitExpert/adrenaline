@@ -10,20 +10,24 @@
  */
 namespace bitExpert\Adrenaline;
 
+use bitExpert\Adrenaline\Action\Resolver\ActionResolverMiddleware;
 use bitExpert\Adrenaline\Helper\DeeplyInheritedRoute;
 use bitExpert\Adrenaline\Helper\InheritedRoute;
+use bitExpert\Adrenaline\Helper\TestMiddleware;
+use bitExpert\Adroit\Action\Executor\ActionExecutorMiddleware;
 use bitExpert\Adroit\Action\Resolver\ActionResolver;
+use bitExpert\Adroit\Responder\Executor\ResponderExecutorMiddleware;
+use bitExpert\Adroit\Responder\Resolver\ResponderResolverMiddleware;
 use bitExpert\Pathfinder\Matcher\NumericMatcher;
+use bitExpert\Pathfinder\Middleware\BasicRoutingMiddleware;
 use bitExpert\Pathfinder\Route;
 use bitExpert\Pathfinder\Router;
+use bitExpert\Pathfinder\RoutingResult;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response\EmitterInterface;
-use bitExpert\Adroit\Action\ActionMiddleware;
-use bitExpert\Adroit\Responder\ResponderMiddleware;
-use bitExpert\Pathfinder\Middleware\RoutingMiddleware;
 
 /**
  * Unit test for {@link \bitExpert\Adrenaline\Adrenaline}.
@@ -47,6 +51,24 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
      */
     protected $application;
 
+    protected $routingMiddleware;
+    /**
+     * @var ActionResolverMiddleware
+     */
+    protected $actionResolverMiddleware;
+    /**
+     * @var ActionExecutorMiddleware
+     */
+    protected $actionExecutorMiddleware;
+    /**
+     * @var ResponderResolverMiddleware
+     */
+    protected $responderResolverMiddleware;
+    /**
+     * @var ResponderExecutorMiddleware
+     */
+    protected $responderExecutorMiddleware;
+
     /**
      * @see PHPUnit_Framework_TestCase::setUp()
      */
@@ -56,6 +78,48 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         $this->request = new ServerRequest([], [], '/', 'GET');
         $this->response = new Response();
         $this->emitter = $this->getMock(EmitterInterface::class);
+
+        $this->routingMiddleware = $this->getMockBuilder(BasicRoutingMiddleware::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__invoke'])
+            ->getMock();
+
+        $this->actionResolverMiddleware = $this->getMockBuilder(ActionResolverMiddleware::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__invoke'])
+            ->getMock();
+
+        $this->actionExecutorMiddleware = $this->getMockBuilder(ActionExecutorMiddleware::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__invoke'])
+            ->getMock();
+        $this->responderResolverMiddleware = $this->getMockBuilder(ResponderResolverMiddleware::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__invoke'])
+            ->getMock();
+
+        $this->responderExecutorMiddleware = $this->getMockBuilder(ResponderExecutorMiddleware::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__invoke'])
+            ->getMock();
+
+    }
+
+    protected function getMockedAdrenaline()
+    {
+        $middleware = $this->getMockBuilder(Adrenaline::class)
+            ->setMethods([
+                'pipe'
+            ])
+            ->setConstructorArgs([
+                [],
+                [],
+                null,
+                $this->emitter
+            ])
+            ->getMock();
+
+        return $middleware;
     }
 
     /**
@@ -63,7 +127,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
      */
     public function setErrorHandlerWillBeCalledWhenExceptionIsThrown()
     {
-        $app = Adrenaline::lenient([], [], null, $this->emitter);
+        $app = new Adrenaline([], [], null, $this->emitter);
         $called = false;
         $errorHandler = function (ServerRequestInterface $request, ResponseInterface $response, $err) use (&$called) {
             $called = true;
@@ -82,146 +146,61 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function beforeRoutingMiddlewareWillBeCalledBeforeRoutingMiddleware()
+    public function beforeRoutingMiddlewareWillBePipedBeforeRoutingMiddleware()
     {
         $expectedOrder = [
-            'beforeRouting',
-            'routing'
-        ];
-
-        $order = [];
-        $beforeRoutingMiddleware = $this->createTestMiddleware(function () use (&$order) {
-            $order[] = 'beforeRouting';
-        });
-
-        $routingMiddleware = $this->getMockBuilder(RoutingMiddleware::class, ['__invoke'])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $routingMiddlewareStub = $this->createTestMiddleware(function () use (&$order) {
-            $order[] = 'routing';
-        });
-
-        $routingMiddleware->expects($this->any())
-            ->method('__invoke')
-            ->will($this->returnCallback($routingMiddlewareStub));
-
-        $actionMiddleware = $this->getMockBuilder(ActionMiddleware::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $responderMiddleware = $this->getMockBuilder(ResponderMiddleware::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $app = new Adrenaline($routingMiddleware, $actionMiddleware, $responderMiddleware, $this->emitter);
-
-        $app->beforeRouting($beforeRoutingMiddleware);
-        $app($this->request, $this->response);
-        $this->assertEquals($order, $expectedOrder);
-    }
-
-    /**
-     * @test
-     */
-    public function beforeActionMiddlewareWillBeCalledBeforeActionMiddleware()
-    {
-        $expectedOrder = [
-            'beforeAction',
-            'action'
-        ];
-
-        $order = [];
-        $beforeActionMiddleware = $this->createTestMiddleware(function () use (&$order) {
-            $order[] = 'beforeAction';
-        });
-
-        $routingMiddleware = $this->getMockBuilder(RoutingMiddleware::class, ['__invoke'])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $routingMiddleware->expects($this->any())
-            ->method('__invoke')
-            ->will($this->returnCallback($this->createTestMiddleware()));
-
-        $actionMiddlewareStub = $this->createTestMiddleware(function () use (&$order) {
-            $order[] = 'action';
-        });
-
-        $actionMiddleware = $this->getMockBuilder(ActionMiddleware::class, ['__invoke'])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $actionMiddleware->expects($this->any())
-            ->method('__invoke')
-            ->will($this->returnCallback($actionMiddlewareStub));
-
-        $responderMiddleware = $this->getMockBuilder(ResponderMiddleware::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $app = new Adrenaline($routingMiddleware, $actionMiddleware, $responderMiddleware, $this->emitter);
-
-        $app->beforeAction($beforeActionMiddleware);
-        $app($this->request, $this->response);
-        $this->assertEquals($order, $expectedOrder);
-    }
-
-
-    /**
-     * @test
-     */
-    public function beforeEmitterMiddlewareWillBeCalledBeforeEmitter()
-    {
-        $expectedOrder = [
-            'beforeEmitter',
-            'emitter'
+            TestMiddleware::class,
+            BasicRoutingMiddleware::class,
+            ActionResolverMiddleware::class,
+            ActionExecutorMiddleware::class,
+            ResponderResolverMiddleware::class,
+            ResponderExecutorMiddleware::class
         ];
 
         $order = [];
 
-        $routingMiddleware = $this->getMockBuilder(RoutingMiddleware::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $routingMiddleware->expects($this->any())
-            ->method('__invoke')
-            ->will($this->returnCallback($this->createTestMiddleware()));
-
-
-        $actionMiddleware = $this->getMockBuilder(ActionMiddleware::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $actionMiddleware->expects($this->any())
-            ->method('__invoke')
-            ->will($this->returnCallback($this->createTestMiddleware()));
-
-        $responderMiddleware = $this->getMockBuilder(ResponderMiddleware::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $responderMiddleware->expects($this->any())
-            ->method('__invoke')
-            ->will($this->returnCallback($this->createTestMiddleware()));
-
-        $beforeEmitterMiddleware = $this->createTestMiddleware(function () use (&$order) {
-            $order[] = 'beforeEmitter';
-        });
-
-        $emitter = $this->getMock(EmitterInterface::class, ['emit']);
-        $emitter->expects($this->once())
-            ->method('emit')
-            ->will($this->returnCallback(function () use (&$order) {
-                $order[] = 'emitter';
+        $app = $this->getMockedAdrenaline();
+        $app->expects($this->any())
+            ->method('pipe')
+            ->will($this->returnCallback(function ($middleware) use (&$order) {
+                $order[] = get_class($middleware);
             }));
 
-        $app = new Adrenaline($routingMiddleware, $actionMiddleware, $responderMiddleware, $emitter);
+        $routingResult = RoutingResult::forSuccess(new Route());
+        $app->beforeRouting(new TestMiddleware());
+        $this->request = $this->request->withAttribute(RoutingResult::class, $routingResult);
+        $app->__invoke($this->request, $this->response);
+        $this->assertEquals($order, $expectedOrder);
+    }
 
-        $app->beforeEmitter($beforeEmitterMiddleware);
 
-        $app($this->request, $this->response);
+    /**
+     * @test
+     */
+    public function beforeEmitterMiddlewareWillBePipedBeforeEmitter()
+    {
+        $expectedOrder = [
+            BasicRoutingMiddleware::class,
+            ActionResolverMiddleware::class,
+            ActionExecutorMiddleware::class,
+            ResponderResolverMiddleware::class,
+            ResponderExecutorMiddleware::class,
+            TestMiddleware::class
+        ];
 
+        $order = [];
+
+        $app = $this->getMockedAdrenaline();
+        $app->expects($this->any())
+            ->method('pipe')
+            ->will($this->returnCallback(function ($middleware) use (&$order) {
+                $order[] = get_class($middleware);
+            }));
+
+        $routingResult = RoutingResult::forSuccess(new Route());
+        $app->beforeEmitter(new TestMiddleware());
+        $this->request = $this->request->withAttribute(RoutingResult::class, $routingResult);
+        $app->__invoke($this->request, $this->response);
         $this->assertEquals($order, $expectedOrder);
     }
 
@@ -279,7 +258,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
      */
     public function throwsExceptionIfDefaultRouteClassDoesNotInheritRoute()
     {
-        $app = Adrenaline::prototyping();
+        $app = new Adrenaline();
         $app->setDefaultRouteClass(\stdClass::class);
     }
 
@@ -291,7 +270,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         $thrown = false;
 
         try {
-            $app = Adrenaline::prototyping();
+            $app = new Adrenaline();
             $app->setDefaultRouteClass(Route::class);
         } catch (\InvalidArgumentException $e) {
             $thrown = true;
@@ -307,7 +286,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     {
         $thrown = false;
         try {
-            $app = Adrenaline::prototyping();
+            $app = new Adrenaline();
             $app->setDefaultRouteClass(InheritedRoute::class);
         } catch (\InvalidArgumentException $e) {
             $thrown = true;
@@ -323,7 +302,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     {
         $thrown = false;
         try {
-            $app = Adrenaline::prototyping();
+            $app = new Adrenaline();
             $app->setDefaultRouteClass(DeeplyInheritedRoute::class);
         } catch (\InvalidArgumentException $e) {
             $thrown = true;
@@ -355,18 +334,9 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             $defaultRouteClass
         );
 
-        $app = Adrenaline::lenient([], [], $router, $this->emitter);
+        $app = new Adrenaline([], [], $router, $this->emitter);
         $app->setDefaultRouteClass(DeeplyInheritedRoute::class);
         $app->get($name, $path, $target, $matchers);
-    }
-
-    /**
-     * @test
-     */
-    public function createDefaultCreatesAdrenaline()
-    {
-        $app = Adrenaline::createDefault('routing', [], []);
-        $this->assertInstanceOf(Adrenaline::class, $app);
     }
 
     /**
@@ -375,8 +345,8 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     public function outGetsCalledIfGivenAndNoErrorHandlerIsSet()
     {
         $called = false;
-        ;
-        $app = Adrenaline::lenient([], [], null, $this->emitter);
+
+        $app = new Adrenaline([], [], null, $this->emitter);
         $app($this->request, $this->response, function () use (&$called) {
             $called = true;
         });
@@ -400,7 +370,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
                 return $response;
             }));
 
-        $app = Adrenaline::lenient([$resolver], [], null, $this->emitter);
+        $app = new Adrenaline([$resolver], [], null, $this->emitter);
         $app->addRoute(
             Route::get('/')->to(function (ServerRequestInterface $request, ResponseInterface $response) {
                 return $response;
@@ -449,7 +419,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
                 throw new \Exception();
             }));
 
-        $app = Adrenaline::lenient([$resolver], [], null, $this->emitter);
+        $app = new Adrenaline([$resolver], [], null, $this->emitter);
 
         $app->setErrorHandler(function (
             ServerRequestInterface $request,
@@ -517,7 +487,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         ];
 
         $router = $this->createRouteCreationTestRouter(strtoupper($method), $name, $path, $target, $matchers);
-        $app = Adrenaline::lenient([], [], $router, $this->emitter);
+        $app = new Adrenaline([], [], $router, $this->emitter);
         $function = strtolower($method);
         $app->$function($name, $path, $target, $matchers);
     }
@@ -550,7 +520,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
                 $target,
                 $matchers,
                 $class
-) {
+            ) {
                 if ($class !== null) {
                     $this->assertEquals(get_class($route), $class);
                 }
@@ -567,14 +537,5 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             }));
 
         return $router;
-    }
-
-    /**
-     * @test
-     */
-    public function strictReturnsAnAdrenalineInstance()
-    {
-        $adrenaline = Adrenaline::strict([], []);
-        $this->assertInstanceOf(Adrenaline::class, $adrenaline);
     }
 }

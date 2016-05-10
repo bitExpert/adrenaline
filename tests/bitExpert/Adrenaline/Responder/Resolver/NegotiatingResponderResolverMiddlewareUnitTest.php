@@ -17,6 +17,7 @@ use bitExpert\Adroit\Responder\Resolver\ResponderResolver;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Unit test for {@link \bitExpert\Adrenaline\Responder\Resolver\NegotiatingResponderResolverMiddleware}.
@@ -62,9 +63,19 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
         $this->request = $this->getMock(ServerRequestInterface::class);
         $this->response = new Response();
         $this->domainPayload = new DomainPayload('');
-        $this->manager = $this->getMock(ContentNegotiationManager::class, [], [], '', false);
+        $this->manager = $this->getMockBuilder(ContentNegotiationManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->resolver1 = $this->getMock(ResponderResolver::class);
         $this->resolver2 = $this->getMock(ResponderResolver::class);
+        $mockedResolver = $this->getMockBuilder(ResponderResolver::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['resolve'])
+            ->getMock();
+
+        $mockedResolver->expects($this->any())
+            ->method('resolve')
+            ->will($this->returnValue(null));
 
         $this->middleware = new NegotiatingResponderResolverMiddleware(
             [
@@ -75,12 +86,13 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
                 ],
                 'application/json' =>
                     [
-                        $this->getMock(ResponderResolver::class),
+                        $mockedResolver,
                         $this->resolver2,
                         $this->resolver2
                     ]
             ],
             'domainPayload',
+            Responder::class,
             $this->manager
         );
     }
@@ -118,25 +130,26 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
      */
     public function oneConfiguredResponderForContentTypeWillBeUsed()
     {
-        $responderResponse = new Response();
-        $responderResponse = $responderResponse->withHeader('Test', 'Success');
+        $setResponder = null;
 
         $responder = $this->getMock(Responder::class);
-        $responder->expects($this->once())
-            ->method('__invoke')
-            ->will($this->returnValue($responderResponse));
 
         $this->manager->expects($this->once())
             ->method('getBestMatch')
             ->will($this->returnValue('text/html'));
+
         $this->resolver1->expects($this->once())
             ->method('resolve')
             ->will($this->returnValue($responder));
 
         $request = (new ServerRequest())->withAttribute('domainPayload', new DomainPayload(''));
 
-        $response = $this->middleware->__invoke($request, $this->response);
-        $this->assertSame($response, $responderResponse);
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) use (&$setResponder) {
+            $setResponder = $request->getAttribute(Responder::class);
+        };
+
+        $this->middleware->__invoke($request, $this->response, $next);
+        $this->assertSame($responder, $setResponder);
     }
 
     /**
@@ -144,13 +157,9 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
      */
     public function firstMatchingResponderForContentTypeWillBeUsed()
     {
-        $responderResponse = new Response();
-        $responderResponse = $responderResponse->withHeader('Test', 'Success');
+        $setResponder = null;
 
         $responder = $this->getMock(Responder::class);
-        $responder->expects($this->once())
-            ->method('__invoke')
-            ->will($this->returnValue($responderResponse));
 
         $this->manager->expects($this->once())
             ->method('getBestMatch')
@@ -162,7 +171,11 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
 
         $request = (new ServerRequest())->withAttribute('domainPayload', new DomainPayload(''));
 
-        $response = $this->middleware->__invoke($request, $this->response);
-        $this->assertSame($response, $responderResponse);
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) use (&$setResponder) {
+            $setResponder = $request->getAttribute(Responder::class);
+        };
+
+        $this->middleware->__invoke($request, $this->response, $next);
+        $this->assertSame($responder, $setResponder);
     }
 }
