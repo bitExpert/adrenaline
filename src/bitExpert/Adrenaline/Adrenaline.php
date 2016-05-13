@@ -265,10 +265,10 @@ class Adrenaline extends AdroitMiddleware
     /**
      * Adds a GET route
      *
-     * @param $name
-     * @param $path
-     * @param $target
-     * @param $matchers
+     * @param string $name
+     * @param string $path
+     * @param mixed $target
+     * @param array $matchers
      * @return Adrenaline
      */
     public function get($name, $path, $target, array $matchers = [])
@@ -281,10 +281,10 @@ class Adrenaline extends AdroitMiddleware
     /**
      * Adds a POST route
      *
-     * @param $name
-     * @param $path
-     * @param $target
-     * @param $matchers
+     * @param string $name
+     * @param string $path
+     * @param mixed $target
+     * @param array $matchers
      * @return Adrenaline
      */
     public function post($name, $path, $target, array $matchers = [])
@@ -297,10 +297,10 @@ class Adrenaline extends AdroitMiddleware
     /**
      * Adds a PUT route
      *
-     * @param $name
-     * @param $path
-     * @param $target
-     * @param $matchers
+     * @param string $name
+     * @param string $path
+     * @param mixed $target
+     * @param array $matchers
      * @return Adrenaline
      */
     public function put($name, $path, $target, array $matchers = [])
@@ -313,10 +313,10 @@ class Adrenaline extends AdroitMiddleware
     /**
      * Adds a DELETE route
      *
-     * @param $name
-     * @param $path
-     * @param $target
-     * @param $matchers
+     * @param string $name
+     * @param string $path
+     * @param mixed $target
+     * @param array $matchers
      * @return Adrenaline
      */
     public function delete($name, $path, $target, array $matchers = [])
@@ -329,10 +329,10 @@ class Adrenaline extends AdroitMiddleware
     /**
      * Adds an OPTIONS route
      *
-     * @param $name
-     * @param $path
-     * @param $target
-     * @param $matchers
+     * @param string $name
+     * @param string $path
+     * @param mixed $target
+     * @param array $matchers
      * @return Adrenaline
      */
     public function options($name, $path, $target, array $matchers = [])
@@ -345,10 +345,10 @@ class Adrenaline extends AdroitMiddleware
     /**
      * Adds a PATCH route
      *
-     * @param $name
-     * @param $path
-     * @param $target
-     * @param $matchers
+     * @param string $name
+     * @param string $path
+     * @param mixed $target
+     * @param array $matchers
      * @return Adrenaline
      */
     public function patch($name, $path, $target, array $matchers = [])
