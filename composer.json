@@ -1,8 +1,7 @@
 {
   "name": "bitexpert/adrenaline",
   "description": "A PSR-7 micro framework built on top of the Adroit middleware.",
-  "minimum-stability": "dev",
-  "prefer-stable": true,
+  "minimum-stability": "stable",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -18,10 +17,9 @@
   ],
   "require": {
     "php": "^5.5|^7.0",
-    "bitexpert/pathfinder": "dev-master",
-    "bitexpert/adroit": "dev-master",
+    "bitexpert/pathfinder": "^0.4.0",
+    "bitexpert/adroit": "^0.4.0",
     "bitexpert/slf4psrlog": "^0.1.0",
-    "zendframework/zend-stratigility": "^1.1.0",
     "zendframework/zend-diactoros": "^1.0.0",
     "psr/http-message": "^1.0",
     "willdurand/negotiation": "^2.0",
@@ -46,15 +44,5 @@
     "psr-4": {
       "bitExpert\\Adrenaline\\": "tests/bitExpert/Adrenaline"
     }
-  },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/bitExpert/pathfinder"
-    },
-    {
-      "type": "git",
-      "url": "https://github.com/bitExpert/adroit"
-    }
-  ]
+  }
 }
