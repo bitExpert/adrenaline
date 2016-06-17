@@ -17,6 +17,7 @@ use bitExpert\Adroit\Responder\Resolver\CallableResponderResolver;
 use bitExpert\Pathfinder\Middleware\BasicRoutingMiddleware;
 use bitExpert\Pathfinder\Psr7Router;
 use bitExpert\Pathfinder\Route;
+use bitExpert\Pathfinder\RouteBuilder;
 use bitExpert\Pathfinder\Router;
 use bitExpert\Pathfinder\RoutingResult;
 use Psr\Http\Message\ServerRequestInterface;
@@ -212,54 +213,41 @@ class Adrenaline extends AdroitMiddleware
      * route creation
      *
      * @param $defaultRouteClass
-     * @throws \InvalidArgumentException
      */
     public function setDefaultRouteClass($defaultRouteClass)
     {
-        if ($defaultRouteClass === Route::class) {
-            $this->defaultRouteClass = $defaultRouteClass;
-        } else {
-            $routeClass = $defaultRouteClass;
-            while ($parent = get_parent_class($routeClass)) {
-                if ($parent === Route::class) {
-                    $this->defaultRouteClass = $defaultRouteClass;
-                    break;
-                } else {
-                    $routeClass = $parent;
-                }
-            }
-
-            if ($this->defaultRouteClass !== $defaultRouteClass) {
-                throw new \InvalidArgumentException(sprintf(
-                    'You tried to set "%s" as default route class which does not inherit "%s"',
-                    $defaultRouteClass,
-                    Route::class
-                ));
-            }
-        }
+        $this->defaultRouteClass = $defaultRouteClass;
     }
 
     /**
      * Creates a route using given params
      *
-     * @param mixed $methods
+     * @param array $methods
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param \bitExpert\Pathfinder\Matcher\Matcher[] $matchers
+     * @param callable[][] $matchers
      * @return Route
      */
-    protected function createRoute($methods, $name, $path, $target, array $matchers = [])
+    protected function createRoute(array $methods, $name, $path, $target, array $matchers = [])
     {
-        /** @var Route $route */
-        $route = forward_static_call([$this->defaultRouteClass, 'create'], $methods, $path, $target);
-        $route = $route->named($name);
+        $builder = RouteBuilder::route($this->defaultRouteClass);
 
-        foreach ($matchers as $param => $paramMatchers) {
-            $route = $route->ifMatches($param, $paramMatchers);
+        $builder->from($path)->to($target);
+
+        foreach ($methods as $method) {
+            $builder->accepting($method);
         }
 
-        return $route;
+        $builder->named($name);
+
+        foreach ($matchers as $param => $paramMatchers) {
+            foreach ($paramMatchers as $matcher) {
+                $builder->ifMatches($param, $matcher);
+            }
+        }
+
+        return $builder->build();
     }
 
     /**
@@ -268,12 +256,12 @@ class Adrenaline extends AdroitMiddleware
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param array $matchers
+     * @param callable[][] $matchers
      * @return Adrenaline
      */
     public function get($name, $path, $target, array $matchers = [])
     {
-        $route = $this->createRoute('GET', $name, $path, $target, $matchers);
+        $route = $this->createRoute(['GET'], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -284,12 +272,12 @@ class Adrenaline extends AdroitMiddleware
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param array $matchers
+     * @param callable[][] $matchers
      * @return Adrenaline
      */
     public function post($name, $path, $target, array $matchers = [])
     {
-        $route = $this->createRoute('POST', $name, $path, $target, $matchers);
+        $route = $this->createRoute(['POST'], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -300,12 +288,12 @@ class Adrenaline extends AdroitMiddleware
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param array $matchers
+     * @param callable[][] $matchers
      * @return Adrenaline
      */
     public function put($name, $path, $target, array $matchers = [])
     {
-        $route = $this->createRoute('PUT', $name, $path, $target, $matchers);
+        $route = $this->createRoute(['PUT'], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -316,12 +304,12 @@ class Adrenaline extends AdroitMiddleware
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param array $matchers
+     * @param callable[][] $matchers
      * @return Adrenaline
      */
     public function delete($name, $path, $target, array $matchers = [])
     {
-        $route = $this->createRoute('DELETE', $name, $path, $target, $matchers);
+        $route = $this->createRoute(['DELETE'], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -332,12 +320,12 @@ class Adrenaline extends AdroitMiddleware
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param array $matchers
+     * @param callable[][] $matchers
      * @return Adrenaline
      */
     public function options($name, $path, $target, array $matchers = [])
     {
-        $route = $this->createRoute('OPTIONS', $name, $path, $target, $matchers);
+        $route = $this->createRoute(['OPTIONS'], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -348,12 +336,12 @@ class Adrenaline extends AdroitMiddleware
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param array $matchers
+     * @param callable[][] $matchers
      * @return Adrenaline
      */
     public function patch($name, $path, $target, array $matchers = [])
     {
-        $route = $this->createRoute('PATCH', $name, $path, $target, $matchers);
+        $route = $this->createRoute(['PATCH'], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }

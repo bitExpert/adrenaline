@@ -20,7 +20,9 @@ use bitExpert\Adroit\Responder\Executor\ResponderExecutorMiddleware;
 use bitExpert\Adroit\Responder\Resolver\ResponderResolverMiddleware;
 use bitExpert\Pathfinder\Matcher\NumericMatcher;
 use bitExpert\Pathfinder\Middleware\BasicRoutingMiddleware;
+use bitExpert\Pathfinder\Middleware\RoutingMiddleware;
 use bitExpert\Pathfinder\Route;
+use bitExpert\Pathfinder\RouteBuilder;
 use bitExpert\Pathfinder\Router;
 use bitExpert\Pathfinder\RoutingResult;
 use Psr\Http\Message\ServerRequestInterface;
@@ -50,7 +52,9 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
      * @var Adrenaline
      */
     protected $application;
-
+    /**
+     * @var RoutingMiddleware
+     */
     protected $routingMiddleware;
     /**
      * @var ActionResolverMiddleware
@@ -135,9 +139,13 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         };
         $app->setErrorHandler($errorHandler);
         $app->addRoute(
-            Route::get('/')->to(function (ServerRequestInterface $request, ResponseInterface $response) {
-                throw new \Exception();
-            })->named('home')
+            RouteBuilder::route()
+                ->get('/')
+                ->to(function (ServerRequestInterface $request, ResponseInterface $response) {
+                    throw new \Exception();
+                })
+                ->named('home')
+                ->build()
         );
         $app($this->request, $this->response);
         $this->assertTrue($called);
@@ -166,7 +174,12 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
                 $order[] = get_class($middleware);
             }));
 
-        $routingResult = RoutingResult::forSuccess(new Route());
+        $route = RouteBuilder::route()
+            ->get('/')
+            ->to('home')
+            ->build();
+
+        $routingResult = RoutingResult::forSuccess($route);
         $app->beforeRouting(new TestMiddleware());
         $this->request = $this->request->withAttribute(RoutingResult::class, $routingResult);
         $app->__invoke($this->request, $this->response);
@@ -197,7 +210,12 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
                 $order[] = get_class($middleware);
             }));
 
-        $routingResult = RoutingResult::forSuccess(new Route());
+        $route = RouteBuilder::route()
+            ->get('/')
+            ->to('home')
+            ->build();
+
+        $routingResult = RoutingResult::forSuccess($route);
         $app->beforeEmitter(new TestMiddleware());
         $this->request = $this->request->withAttribute(RoutingResult::class, $routingResult);
         $app->__invoke($this->request, $this->response);
@@ -260,6 +278,9 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Adrenaline();
         $app->setDefaultRouteClass(\stdClass::class);
+        $app->get('home', '/', function () {
+
+        });
     }
 
     /**
@@ -372,9 +393,13 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
 
         $app = new Adrenaline([$resolver], [], null, $this->emitter);
         $app->addRoute(
-            Route::get('/')->to(function (ServerRequestInterface $request, ResponseInterface $response) {
-                return $response;
-            })->named('home')
+            RouteBuilder::route()
+                ->get('/')
+                ->to(function (ServerRequestInterface $request, ResponseInterface $response) {
+                    return $response;
+                })
+                ->named('home')
+                ->build()
         );
 
         $app->setErrorHandler(function (
