@@ -57,7 +57,7 @@ Adrenaline and of course you may use middleware hooks, error handler and custom 
 as you would do in a productive application. This is just a possibility to give you a quick result for prototyping.
 
 ## <a name="howtoactionresolvers"></a>How to configure action resolvers
-You may configure custom action resolvers for Adrenaline. By default Adroit's [CallableActionResolver](https://github.com/bitExpert/adroit/blob/master/src/bitExpert/Adroit/Action/Resolver/CallableActionResolver.php)
+You may configure custom action resolvers for Adrenaline. By default `bitexpert/adroit`'s [CallableActionResolver](https://github.com/bitExpert/adroit/blob/master/src/bitExpert/Adroit/Action/Resolver/CallableActionResolver.php)
 is added if no action resolvers are provided with the constructor which allows you to use simple Closures as actions (e.g. for protoyping case)
 
 Be aware that you have to add this resolver explicitly if you define your own set of action resolvers if you still want to use it.
@@ -69,7 +69,7 @@ $adrenaline = new Adrenaline([$customActionResolver]);
 ```
 
 ## <a name="howtoresponderresolvers"></a>How to configure responder resolvers
-You may configure custom action resolvers for Adrenaline. By default Adroit's [CallableResponderResolver](https://github.com/bitExpert/adroit/blob/master/src/bitExpert/Adroit/Responder/Resolver/CallableResponderResolver.php)
+You may configure custom action resolvers for Adrenaline. By default `bitexpert/adroit`'s [CallableResponderResolver](https://github.com/bitExpert/adroit/blob/master/src/bitExpert/Adroit/Responder/Resolver/CallableResponderResolver.php)
 is added if no responder resolvers are provided with the constructor which allows you to use simple Closures as responders (e.g. for protoyping case)
 
 Be aware that you have to add this resolver explicitly if you define your own set of responder resolvers if you still want to use it.
