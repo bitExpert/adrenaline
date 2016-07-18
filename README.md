@@ -22,7 +22,7 @@ The preferred way of installing `bitexpert/adrenaline` is through Composer. Simp
 composer.phar require bitexpert/adrenaline
 ```
 ### Prototyping
-If you want to use Adrenaline for fast prototyping you precede as follows:
+If you want to use Adrenaline for fast prototyping you proceed as follows:
 
 * Create an index.php in your application's root directory.
 * Add the following lines to it:
