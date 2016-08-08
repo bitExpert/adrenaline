@@ -92,6 +92,9 @@ class TwigResponder implements Responder
             $response = $response->withHeader($header, $value);
         }
 
-        return $response->withStatus(200);
+        /** @var \bitExpert\Adrenaline\Domain\DomainPayload $payload */
+        $status = $payload->getStatus() ?: 200;
+
+        return $response->withStatus($status);
     }
 }

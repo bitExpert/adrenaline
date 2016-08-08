@@ -131,4 +131,32 @@ class TwigResponderUnitTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(['text/html'], $response->getHeader('Content-Type'));
     }
+
+    /**
+     * @test
+     */
+    public function respectsStatusCodeSetInPayload()
+    {
+        $domainPayload = (new DomainPayload('test'))->withStatus(400);
+        $responder = $this->responder;
+        $responder->setTemplate('mytemplate.twig');
+        /** @var ResponseInterface $response */
+        $response = $responder($domainPayload, $this->response);
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function usesOkStatusCodeIfNoneSetInPayload()
+    {
+        $domainPayload = (new DomainPayload('test'));
+        $responder = $this->responder;
+        $responder->setTemplate('mytemplate.twig');
+        /** @var ResponseInterface $response */
+        $response = $responder($domainPayload, $this->response);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
