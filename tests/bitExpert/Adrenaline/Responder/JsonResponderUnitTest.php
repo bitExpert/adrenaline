@@ -83,8 +83,35 @@ class JsonResponderUnitTest extends \PHPUnit_Framework_TestCase
         $domainPayload = new DomainPayload('test');
         $this->responder->setHeaders(['Content-Type' => 'my/type']);
         $responder = $this->responder;
+        /** @var ResponseInterface $response */
         $response = $responder($domainPayload, $this->response);
 
         $this->assertEquals(['application/json'], $response->getHeader('Content-Type'));
+    }
+
+    /**
+     * @test
+     */
+    public function respectsStatusCodeSetInPayload()
+    {
+        $domainPayload = (new DomainPayload('test'))->withStatus(400);
+        $responder = $this->responder;
+        /** @var ResponseInterface $response */
+        $response = $responder($domainPayload, $this->response);
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function usesOkStatusCodeIfNoneSetInPayload()
+    {
+        $domainPayload = (new DomainPayload('test'));
+        $responder = $this->responder;
+        /** @var ResponseInterface $response */
+        $response = $responder($domainPayload, $this->response);
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }
