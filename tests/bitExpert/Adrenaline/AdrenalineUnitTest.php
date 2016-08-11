@@ -14,6 +14,7 @@ use bitExpert\Adrenaline\Action\Resolver\ActionResolverMiddleware;
 use bitExpert\Adrenaline\Helper\DeeplyInheritedRoute;
 use bitExpert\Adrenaline\Helper\InheritedRoute;
 use bitExpert\Adrenaline\Helper\TestMiddleware;
+use bitExpert\Adrenaline\Plugin\Plugin;
 use bitExpert\Adroit\Action\Executor\ActionExecutorMiddleware;
 use bitExpert\Adroit\Action\Resolver\ActionResolver;
 use bitExpert\Adroit\Responder\Executor\ResponderExecutorMiddleware;
@@ -562,5 +563,29 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             }));
 
         return $router;
+    }
+
+    /**
+     * @test
+     */
+    public function pluginsGetAppliedWhenAttached()
+    {
+        $app = new Adrenaline([], [], null, $this->emitter);
+
+        $plugin = $this->getMock(Plugin::class);
+        $plugin2 = $this->getMock(Plugin::class);
+
+        $plugin->expects($this->once())
+            ->method('applyTo')
+            ->with($app);
+
+        $plugin2->expects($this->once())
+            ->method('applyTo')
+            ->with($app);
+
+        $app->attach($plugin);
+        $app->attach($plugin2);
+
+        $app($this->request, $this->response);
     }
 }

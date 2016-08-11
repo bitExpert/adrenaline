@@ -10,6 +10,9 @@
  */
 namespace bitExpert\Adrenaline;
 
+use bitExpert\Adrenaline\Plugin\Plugin;
+use bitExpert\Adrenaline\Plugin\PluginBundle;
+use bitExpert\Adrenaline\Plugin\SimplePluginBundle;
 use bitExpert\Adroit\Action\Resolver\CallableActionResolver;
 use bitExpert\Adroit\AdroitMiddleware;
 use bitExpert\Adrenaline\Action\Resolver\ActionResolverMiddleware;
@@ -20,8 +23,10 @@ use bitExpert\Pathfinder\Route;
 use bitExpert\Pathfinder\RouteBuilder;
 use bitExpert\Pathfinder\Router;
 use bitExpert\Pathfinder\RoutingResult;
+use bitExpert\Slf4PsrLog\LoggerFactory;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Zend\Diactoros\Response\EmitterInterface;
 use Zend\Diactoros\Response\SapiEmitter;
 
@@ -32,6 +37,10 @@ use Zend\Diactoros\Response\SapiEmitter;
  */
 class Adrenaline extends AdroitMiddleware
 {
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
     /**
      * @var callable[]
      */
@@ -56,6 +65,10 @@ class Adrenaline extends AdroitMiddleware
      * @var Router
      */
     protected $router;
+    /**
+     * @var PluginBundle
+     */
+    protected $pluginBundle;
 
     /**
      * Adrenaline constructor.
@@ -75,17 +88,18 @@ class Adrenaline extends AdroitMiddleware
         Router $router = null,
         EmitterInterface $emitter = null
     ) {
+        $this->logger = LoggerFactory::getLogger(get_class($this));
+
         $actionResolvers = count($actionResolvers) ? $actionResolvers : [new CallableActionResolver()];
         $responderResolvers = count($responderResolvers) ? $responderResolvers : [new CallableResponderResolver()];
 
         parent::__construct(RoutingResult::class, $actionResolvers, $responderResolvers);
 
         $this->router = $router ?: new Psr7Router();
-
+        $this->pluginBundle = $this->getPluginBundle();
         $this->defaultRouteClass = Route::class;
         $this->beforeRoutingMiddlewares = [];
         $this->beforeEmitterMiddlewares = [];
-
         $this->emitter = $emitter ?: new SapiEmitter();
 
         $this->errorHandler = null;
@@ -96,14 +110,24 @@ class Adrenaline extends AdroitMiddleware
      */
     protected function initialize()
     {
+        $this->logger->debug('Initializing...');
+        $this->logger->debug('Applying plugins...');
+
+        $this->pluginBundle->applyTo($this);
+
+        $this->logger->debug('Successfully applied plugins.');
+
         $routingMiddleware = $this->getRoutingMiddleware($this->router, RoutingResult::class);
 
+        $this->logger->debug('Applying hooks...');
         $this->pipeEach($this->beforeRoutingMiddlewares);
         $this->pipe($routingMiddleware);
 
         parent::initialize();
 
         $this->pipeEach($this->beforeEmitterMiddlewares);
+        $this->logger->debug('Successfully applied hooks.');
+        $this->logger->debug('Ready.');
     }
 
     /**
@@ -206,6 +230,27 @@ class Adrenaline extends AdroitMiddleware
     protected function getActionResolverMiddleware($actionResolvers, $routingResultAttribute, $actionAttribute)
     {
         return new ActionResolverMiddleware($actionResolvers, $routingResultAttribute, $actionAttribute);
+    }
+
+    /**
+     * @return PluginBundle
+     */
+    protected function getPluginBundle()
+    {
+        return new SimplePluginBundle();
+    }
+
+    /**
+     * Attaches the given plugin to adrenaline
+     *
+     * @param Plugin $plugin
+     * @return Adrenaline
+     */
+    public function attach(Plugin $plugin)
+    {
+        $this->pluginBundle = $this->pluginBundle->withPlugin($plugin);
+
+        return $this;
     }
 
     /**
