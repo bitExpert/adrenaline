@@ -26,8 +26,8 @@
     "twig/twig": "^1.24"
   },
   "require-dev": {
-    "phpunit/php-code-coverage": "^2.1.0",
-    "phpunit/phpunit": "^4.8",
+    "phpunit/php-code-coverage": "^4.0.1",
+    "phpunit/phpunit": "^5.5",
     "squizlabs/php_codesniffer": "^2.3",
     "phpdocumentor/phpdocumentor": "^2.8",
     "monolog/monolog": "^1.14.0",
