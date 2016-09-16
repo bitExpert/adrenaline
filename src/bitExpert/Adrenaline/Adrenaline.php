@@ -206,8 +206,11 @@ class Adrenaline extends AdroitMiddleware
      * @param string $actionAttribute
      * @return ActionResolverMiddleware
      */
-    protected function getActionResolverMiddleware(array $actionResolvers, string $routingResultAttribute, string $actionAttribute) : \bitExpert\Adroit\Action\Resolver\ActionResolverMiddleware
-    {
+    protected function getActionResolverMiddleware(
+        array $actionResolvers,
+        string $routingResultAttribute,
+        string $actionAttribute
+    ) : \bitExpert\Adroit\Action\Resolver\ActionResolverMiddleware {
         return new ActionResolverMiddleware($actionResolvers, $routingResultAttribute, $actionAttribute);
     }
 

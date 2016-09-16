@@ -17,8 +17,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class JsonRequestBodyParserMiddleware
 {
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null) : ResponseInterface
-    {
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        callable $next = null
+    ) : ResponseInterface {
         $contentType = $request->getHeader('Content-Type');
         $contentType = isset($contentType[0]) ? $contentType[0] : null;
         

@@ -108,7 +108,6 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
-
     }
 
     protected function getMockedAdrenaline()
@@ -281,7 +280,6 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         $app = new Adrenaline();
         $app->setDefaultRouteClass(\stdClass::class);
         $app->get('home', '/', function () {
-
         });
     }
 
