@@ -16,7 +16,7 @@
     }
   ],
   "require": {
-    "php": "^5.5|^7.0",
+    "php": "^7.0",
     "bitexpert/pathfinder": "^0.4.0",
     "bitexpert/adroit": "^0.4.0",
     "bitexpert/slf4psrlog": "^0.1.0",
