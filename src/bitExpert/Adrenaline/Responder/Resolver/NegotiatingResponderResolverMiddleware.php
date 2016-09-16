@@ -58,7 +58,7 @@ class NegotiatingResponderResolverMiddleware extends ResponderResolverMiddleware
     /**
      * @inheritdoc
      */
-    protected function getApplicableResolvers(ServerRequestInterface $request)
+    protected function getApplicableResolvers(ServerRequestInterface $request) : array
     {
         $availableTypes = array_keys($this->resolvers);
         $type = $this->negotiationService->getBestMatch($request, $availableTypes);

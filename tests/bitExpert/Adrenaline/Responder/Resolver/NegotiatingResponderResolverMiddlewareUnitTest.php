@@ -62,14 +62,14 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
     {
         parent::setUp();
 
-        $this->request = $this->getMock(ServerRequestInterface::class);
+        $this->request = $this->createMock(ServerRequestInterface::class);
         $this->response = new Response();
         $this->domainPayload = new DomainPayload('');
         $this->manager = $this->getMockBuilder(ContentNegotiationManager::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->resolver1 = $this->getMock(ResponderResolver::class);
-        $this->resolver2 = $this->getMock(ResponderResolver::class);
+        $this->resolver1 = $this->createMock(ResponderResolver::class);
+        $this->resolver2 = $this->createMock(ResponderResolver::class);
         $mockedResolver = $this->getMockBuilder(ResponderResolver::class)
             ->disableOriginalConstructor()
             ->setMethods(['resolve'])
@@ -134,7 +134,7 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
     {
         $setResponder = null;
 
-        $responder = $this->getMock(Responder::class);
+        $responder = $this->createMock(Responder::class);
 
         $this->manager->expects($this->once())
             ->method('getBestMatch')
@@ -148,6 +148,7 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
 
         $next = function (ServerRequestInterface $request, ResponseInterface $response) use (&$setResponder) {
             $setResponder = $request->getAttribute(Responder::class);
+            return $response;
         };
 
         $this->middleware->__invoke($request, $this->response, $next);
@@ -161,7 +162,7 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
     {
         $setResponder = null;
 
-        $responder = $this->getMock(Responder::class);
+        $responder = $this->createMock(Responder::class);
 
         $this->manager->expects($this->once())
             ->method('getBestMatch')
@@ -175,6 +176,7 @@ class NegotiatingResponderResolverMiddlewareUnitTest extends \PHPUnit_Framework_
 
         $next = function (ServerRequestInterface $request, ResponseInterface $response) use (&$setResponder) {
             $setResponder = $request->getAttribute(Responder::class);
+            return $response;
         };
 
         $this->middleware->__invoke($request, $this->response, $next);

@@ -29,7 +29,7 @@ abstract class AbstractAction implements Action
      * @param array $data
      * @return DomainPayload
      */
-    protected function createPayload($type, array $data = [])
+    protected function createPayload($type, array $data = []) : DomainPayload
     {
         return new DomainPayload($type, $data);
     }

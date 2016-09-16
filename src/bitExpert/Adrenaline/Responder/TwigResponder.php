@@ -78,7 +78,7 @@ class TwigResponder implements Responder
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Runtime
      */
-    public function __invoke(Payload $payload, ResponseInterface $response)
+    public function __invoke(Payload $payload, ResponseInterface $response) : ResponseInterface
     {
         if (null === $this->template) {
             throw new \RuntimeException('No template set to render!');

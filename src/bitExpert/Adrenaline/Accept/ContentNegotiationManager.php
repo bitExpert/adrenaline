@@ -41,7 +41,7 @@ class ContentNegotiationManager implements ContentNegotiationService
     /**
      * @inheritdoc
      */
-    public function getBestMatch(MessageInterface $request, array $priorities = array())
+    public function getBestMatch(MessageInterface $request, array $priorities = [])
     {
         if (!$request->hasHeader('Accept')) {
             return null;

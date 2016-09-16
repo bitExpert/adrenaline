@@ -45,7 +45,7 @@ class TwigResponderUnitTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->twig = $this->getMock('\Twig_Environment');
+        $this->twig = $this->createMock('\Twig_Environment');
         $this->domainPayload = new DomainPayload('test');
         $this->responder = new TwigResponder($this->twig);
         $this->response = new Response();

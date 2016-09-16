@@ -43,7 +43,7 @@ class ContentNegotiationManagerUnitTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->request = new Request();
-        $this->negotiator = $this->getMock(Negotiator::class);
+        $this->negotiator = $this->createMock(Negotiator::class);
         $this->manager = new ContentNegotiationManager($this->negotiator);
     }
 

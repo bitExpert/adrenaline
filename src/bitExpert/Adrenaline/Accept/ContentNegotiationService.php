@@ -30,5 +30,5 @@ interface ContentNegotiationService
      * @param array $priorities A set of priorities.
      * @return null|string
      */
-    public function getBestMatch(MessageInterface $request, array $priorities = array());
+    public function getBestMatch(MessageInterface $request, array $priorities = []);
 }

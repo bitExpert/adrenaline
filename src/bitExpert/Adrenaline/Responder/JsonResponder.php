@@ -42,7 +42,7 @@ class JsonResponder implements Responder
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function __invoke(Payload $payload, ResponseInterface $response)
+    public function __invoke(Payload $payload, ResponseInterface $response) : ResponseInterface
     {
         $response->getBody()->rewind();
         $response->getBody()->write(json_encode($payload));

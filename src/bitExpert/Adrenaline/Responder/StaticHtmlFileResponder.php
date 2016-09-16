@@ -73,7 +73,7 @@ class StaticHtmlFileResponder implements Responder
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function __invoke(Payload $payload, ResponseInterface $response)
+    public function __invoke(Payload $payload, ResponseInterface $response) : ResponseInterface
     {
         /** @var \bitExpert\Adrenaline\Domain\DomainPayload $payload */
         $filename = $payload->getValue($this->fileAttribute, null);

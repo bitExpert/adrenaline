@@ -17,6 +17,7 @@ use bitExpert\Adroit\AdroitMiddleware;
 use bitExpert\Adrenaline\Action\Resolver\ActionResolverMiddleware;
 use bitExpert\Adroit\Responder\Resolver\CallableResponderResolver;
 use bitExpert\Pathfinder\Middleware\BasicRoutingMiddleware;
+use bitExpert\Pathfinder\Middleware\RoutingMiddleware;
 use bitExpert\Pathfinder\Psr7Router;
 use bitExpert\Pathfinder\Route;
 use bitExpert\Pathfinder\RouteBuilder;
@@ -115,9 +116,9 @@ class Adrenaline extends AdroitMiddleware
      *
      * @param callable $errorHandler
      * @param callable|null $out
-     * @return \Closure
+     * @return callable
      */
-    protected function encapsulateErrorHandler(callable $errorHandler, callable $out = null)
+    protected function encapsulateErrorHandler(callable $errorHandler, callable $out = null) : callable
     {
         return function (
             ServerRequestInterface $request,
@@ -145,7 +146,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable $middleware
      * @return Adrenaline
      */
-    public function beforeRouting(callable $middleware)
+    public function beforeRouting(callable $middleware) : Adrenaline
     {
         $this->beforeRoutingMiddlewares[] = $middleware;
         return $this;
@@ -157,7 +158,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable $middleware
      * @return Adrenaline
      */
-    public function beforeEmitter(callable $middleware)
+    public function beforeEmitter(callable $middleware) : Adrenaline
     {
         $this->beforeEmitterMiddlewares[] = $middleware;
         return $this;
@@ -192,9 +193,9 @@ class Adrenaline extends AdroitMiddleware
      *
      * @param Router $router
      * @param string $routingResultAttribute
-     * @return \bitExpert\Pathfinder\Middleware\RoutingMiddleware
+     * @return RoutingMiddleware
      */
-    protected function getRoutingMiddleware(Router $router, $routingResultAttribute)
+    protected function getRoutingMiddleware(Router $router, string $routingResultAttribute) : RoutingMiddleware
     {
         return new BasicRoutingMiddleware($router, $routingResultAttribute);
     }
@@ -205,18 +206,17 @@ class Adrenaline extends AdroitMiddleware
      * @param string $actionAttribute
      * @return ActionResolverMiddleware
      */
-    protected function getActionResolverMiddleware($actionResolvers, $routingResultAttribute, $actionAttribute)
+    protected function getActionResolverMiddleware(array $actionResolvers, string $routingResultAttribute, string $actionAttribute) : \bitExpert\Adroit\Action\Resolver\ActionResolverMiddleware
     {
         return new ActionResolverMiddleware($actionResolvers, $routingResultAttribute, $actionAttribute);
     }
 
     /**
-     * Sets the default route class to use for implicit
-     * route creation
+     * Sets the default route class to use for implicit route creation.
      *
-     * @param $defaultRouteClass
+     * @param string $defaultRouteClass
      */
-    public function setDefaultRouteClass($defaultRouteClass)
+    public function setDefaultRouteClass(string $defaultRouteClass)
     {
         $this->defaultRouteClass = $defaultRouteClass;
     }
@@ -228,10 +228,10 @@ class Adrenaline extends AdroitMiddleware
      * @param string $name
      * @param string $path
      * @param mixed $target
-     * @param callable[][] $matchers
+     * @param array $matchers
      * @return Route
      */
-    protected function createRoute(array $methods, $name, $path, $target, array $matchers = [])
+    protected function createRoute(array $methods, string $name, string $path, $target, array $matchers = []) : Route
     {
         $builder = RouteBuilder::route($this->defaultRouteClass);
 
@@ -261,7 +261,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable[][] $matchers
      * @return Adrenaline
      */
-    public function get($name, $path, $target, array $matchers = [])
+    public function get(string $name, string $path, $target, array $matchers = []) : self
     {
         $route = $this->createRoute(['GET'], $name, $path, $target, $matchers);
         $this->addRoute($route);
@@ -277,7 +277,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable[][] $matchers
      * @return Adrenaline
      */
-    public function post($name, $path, $target, array $matchers = [])
+    public function post(string $name, string $path, $target, array $matchers = []) : self
     {
         $route = $this->createRoute(['POST'], $name, $path, $target, $matchers);
         $this->addRoute($route);
@@ -293,7 +293,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable[][] $matchers
      * @return Adrenaline
      */
-    public function put($name, $path, $target, array $matchers = [])
+    public function put(string $name, string $path, $target, array $matchers = []) : self
     {
         $route = $this->createRoute(['PUT'], $name, $path, $target, $matchers);
         $this->addRoute($route);
@@ -309,7 +309,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable[][] $matchers
      * @return Adrenaline
      */
-    public function delete($name, $path, $target, array $matchers = [])
+    public function delete(string $name, string $path, $target, array $matchers = []) : self
     {
         $route = $this->createRoute(['DELETE'], $name, $path, $target, $matchers);
         $this->addRoute($route);
@@ -325,7 +325,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable[][] $matchers
      * @return Adrenaline
      */
-    public function options($name, $path, $target, array $matchers = [])
+    public function options(string $name, string $path, $target, array $matchers = []) : self
     {
         $route = $this->createRoute(['OPTIONS'], $name, $path, $target, $matchers);
         $this->addRoute($route);
@@ -341,7 +341,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable[][] $matchers
      * @return Adrenaline
      */
-    public function patch($name, $path, $target, array $matchers = [])
+    public function patch(string $name, string $path, $target, array $matchers = []) : self
     {
         $route = $this->createRoute(['PATCH'], $name, $path, $target, $matchers);
         $this->addRoute($route);
@@ -355,7 +355,7 @@ class Adrenaline extends AdroitMiddleware
      * @throws \InvalidArgumentException
      * @return Adrenaline
      */
-    public function addRoute(Route $route)
+    public function addRoute(Route $route) : self
     {
         $this->router->addRoute($route);
         return $this;
