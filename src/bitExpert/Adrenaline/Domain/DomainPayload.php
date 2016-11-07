@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Domain;
 
 use bitExpert\Adroit\Domain\Payload;
@@ -23,12 +25,10 @@ class DomainPayload implements Payload, \JsonSerializable
      * @var mixed
      */
     private $status;
-
     /**
      * @var mixed
      */
     private $type;
-
     /**
      * @var array
      */
@@ -40,14 +40,16 @@ class DomainPayload implements Payload, \JsonSerializable
      * @param mixed $type
      * @param array $data
      */
-    public function __construct($type, array $data = array())
+    public function __construct($type, array $data = [])
     {
         $this->type = $type;
         $this->data = $data;
     }
 
     /**
-     * {@inheritdoc}
+     * Gets the value for $key. If no value is set for $key it will return $default or null.
+     *
+     * @return mixed
      */
     public function getValue($key, $default = null)
     {
@@ -55,17 +57,20 @@ class DomainPayload implements Payload, \JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Returns all the values.
      */
-    public function getValues()
+    public function getValues() : array
     {
         return $this->data;
     }
 
     /**
-     * {@inheritdoc}
+     * Returns a {@link \bitExpert\Adroit\Domain\Payload\DomainPayload} clone
+     * with $key set to $value.
+     *
+     * @return DomainPayload
      */
-    public function withValue($key, $value = null)
+    public function withValue($key, $value = null) : self
     {
         $new = clone $this;
         $new->data[$key] = $value;
@@ -74,9 +79,13 @@ class DomainPayload implements Payload, \JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Returns a {@link \bitExpert\Adroit\Domain\Payload\DomainPayload} clone
+     * with new $values. $values is an array containing the new $property =>
+     * $value relationships.
+     *
+     * @return DomainPayload
      */
-    public function withValues(array $values)
+    public function withValues(array $values) : self
     {
         $new = clone $this;
         foreach ($values as $property => $value) {
@@ -87,9 +96,12 @@ class DomainPayload implements Payload, \JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Returns a {@link \bitExpert\Adroit\Domain\Payload\DomainPayload} clone
+     * with status set to $sttaus
+     *
+     * @return DomainPayload
      */
-    public function withStatus($status)
+    public function withStatus($status) : self
     {
         $new = clone $this;
 
@@ -98,7 +110,9 @@ class DomainPayload implements Payload, \JsonSerializable
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the status.
+     *
+     * @return mixed
      */
     public function getStatus()
     {
@@ -108,7 +122,7 @@ class DomainPayload implements Payload, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType() : string
     {
         return $this->type;
     }

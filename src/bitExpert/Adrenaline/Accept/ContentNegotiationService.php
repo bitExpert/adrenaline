@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Accept;
 
 use Psr\Http\Message\MessageInterface;
@@ -28,5 +30,5 @@ interface ContentNegotiationService
      * @param array $priorities A set of priorities.
      * @return null|string
      */
-    public function getBestMatch(MessageInterface $request, array $priorities = array());
+    public function getBestMatch(MessageInterface $request, array $priorities = []);
 }

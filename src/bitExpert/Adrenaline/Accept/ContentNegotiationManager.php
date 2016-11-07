@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Accept;
 
 use Negotiation\AcceptHeader;
@@ -39,7 +41,7 @@ class ContentNegotiationManager implements ContentNegotiationService
     /**
      * @inheritdoc
      */
-    public function getBestMatch(MessageInterface $request, array $priorities = array())
+    public function getBestMatch(MessageInterface $request, array $priorities = [])
     {
         if (!$request->hasHeader('Accept')) {
             return null;

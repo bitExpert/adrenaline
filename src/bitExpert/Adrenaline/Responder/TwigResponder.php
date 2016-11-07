@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adroit\Domain\Payload;
@@ -76,7 +78,7 @@ class TwigResponder implements Responder
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Runtime
      */
-    public function __invoke(Payload $payload, ResponseInterface $response)
+    public function __invoke(Payload $payload, ResponseInterface $response) : ResponseInterface
     {
         if (null === $this->template) {
             throw new \RuntimeException('No template set to render!');

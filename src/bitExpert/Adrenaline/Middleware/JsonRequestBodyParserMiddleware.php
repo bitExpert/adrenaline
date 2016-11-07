@@ -1,4 +1,15 @@
 <?php
+
+/**
+ * This file is part of the Adrenaline framework.
+ *
+ * (c) bitExpert AG
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
@@ -6,8 +17,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class JsonRequestBodyParserMiddleware
 {
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
-    {
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        callable $next = null
+    ) : ResponseInterface {
         $contentType = $request->getHeader('Content-Type');
         $contentType = isset($contentType[0]) ? $contentType[0] : null;
         

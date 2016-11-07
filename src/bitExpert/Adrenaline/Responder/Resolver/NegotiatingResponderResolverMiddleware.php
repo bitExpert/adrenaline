@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Responder\Resolver;
 
 use bitExpert\Adrenaline\Accept\ContentNegotiationService;
@@ -56,7 +58,7 @@ class NegotiatingResponderResolverMiddleware extends ResponderResolverMiddleware
     /**
      * @inheritdoc
      */
-    protected function getApplicableResolvers(ServerRequestInterface $request)
+    protected function getApplicableResolvers(ServerRequestInterface $request) : array
     {
         $availableTypes = array_keys($this->resolvers);
         $type = $this->negotiationService->getBestMatch($request, $availableTypes);

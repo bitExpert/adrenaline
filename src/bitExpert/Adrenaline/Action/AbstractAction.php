@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Action;
 
 use bitExpert\Adrenaline\Domain\DomainPayload;
@@ -27,7 +29,7 @@ abstract class AbstractAction implements Action
      * @param array $data
      * @return DomainPayload
      */
-    protected function createPayload($type, array $data = [])
+    protected function createPayload($type, array $data = []) : DomainPayload
     {
         return new DomainPayload($type, $data);
     }

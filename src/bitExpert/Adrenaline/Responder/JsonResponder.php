@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adroit\Domain\Payload;
@@ -40,7 +42,7 @@ class JsonResponder implements Responder
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function __invoke(Payload $payload, ResponseInterface $response)
+    public function __invoke(Payload $payload, ResponseInterface $response) : ResponseInterface
     {
         $response->getBody()->rewind();
         $response->getBody()->write(json_encode($payload));

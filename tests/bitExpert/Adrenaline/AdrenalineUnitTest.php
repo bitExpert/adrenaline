@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline;
 
 use bitExpert\Adrenaline\Action\Resolver\ActionResolverMiddleware;
@@ -81,7 +83,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
         $this->request = new ServerRequest([], [], '/', 'GET');
         $this->response = new Response();
-        $this->emitter = $this->getMock(EmitterInterface::class);
+        $this->emitter = $this->createMock(EmitterInterface::class);
 
         $this->routingMiddleware = $this->getMockBuilder(BasicRoutingMiddleware::class)
             ->disableOriginalConstructor()
@@ -106,7 +108,6 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
-
     }
 
     protected function getMockedAdrenaline()
@@ -279,7 +280,6 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         $app = new Adrenaline();
         $app->setDefaultRouteClass(\stdClass::class);
         $app->get('home', '/', function () {
-
         });
     }
 
@@ -341,7 +341,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         $path = '/user/[:id]';
         $target = 'userAction';
         $matchers = [
-            'id' => [$this->getMock(NumericMatcher::class)]
+            'id' => [$this->createMock(NumericMatcher::class)]
         ];
 
         $defaultRouteClass = DeeplyInheritedRoute::class;
@@ -384,7 +384,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         ];
 
         $called = [];
-        $resolver = $this->getMock(ActionResolver::class);
+        $resolver = $this->createMock(ActionResolver::class);
         $resolver->expects($this->once())
             ->method('resolve')
             ->will($this->returnValue(function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -437,7 +437,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
 
         $called = [];
 
-        $resolver = $this->getMock(ActionResolver::class);
+        $resolver = $this->createMock(ActionResolver::class);
         $resolver->expects($this->once())
             ->method('resolve')
             ->will($this->returnValue(function () {
@@ -508,7 +508,7 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
         $path = '/user/[:id]';
         $target = 'userAction';
         $matchers = [
-            'id' => [$this->getMock(NumericMatcher::class)]
+            'id' => [$this->createMock(NumericMatcher::class)]
         ];
 
         $router = $this->createRouteCreationTestRouter(strtoupper($method), $name, $path, $target, $matchers);

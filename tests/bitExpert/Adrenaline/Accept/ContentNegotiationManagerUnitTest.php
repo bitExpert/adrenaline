@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Accept;
 
 use Negotiation\Accept;
@@ -41,7 +43,7 @@ class ContentNegotiationManagerUnitTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->request = new Request();
-        $this->negotiator = $this->getMock(Negotiator::class);
+        $this->negotiator = $this->createMock(Negotiator::class);
         $this->manager = new ContentNegotiationManager($this->negotiator);
     }
 

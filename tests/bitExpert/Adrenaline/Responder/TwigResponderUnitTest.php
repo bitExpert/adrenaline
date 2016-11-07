@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types = 1);
+
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adrenaline\Domain\DomainPayload;
@@ -43,7 +45,7 @@ class TwigResponderUnitTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->twig = $this->getMock('\Twig_Environment');
+        $this->twig = $this->createMock('\Twig_Environment');
         $this->domainPayload = new DomainPayload('test');
         $this->responder = new TwigResponder($this->twig);
         $this->response = new Response();
