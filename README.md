@@ -130,7 +130,9 @@ classes implementing the __invoke method with the according signature.
 
 ## <a name="howtoerrorhandler"></a>How to use an error handler
 You also may define an error handler which will be used for uncaught errors occuring while Adrenaline
-processes the request. You may either use a simple closure or implement your own dedicated class for error handling:
+processes the request. You may either use a simple closure or implement your own dedicated class for error handling.
+**UPDATE**
+Since update to Stratigility 1.3 (we use MiddelwarePipe internally) we had to change the errorhandling due to deprecation warnings. Nevertheless we made the old configuration style working due to backwards compatibility:
 ```php
 <?php
 
@@ -141,8 +143,18 @@ $adrenaline->setErrorHandler(function (ServerRequestInterface $request, Response
 
 // class which implements __invoke with same signature as above
 $adrenaline->setErrorHandler(new MyCustomErrorHandlerClass());
-
 ```
+We recommend to use the new errorhandling since using the "old" error handler may become deprecated in adrenaline also after a while:
+```php
+$adrenaline->setErrorHandler(new ErrorHandler(new Request(), function ($err, ServerRequestInterface $request, ResponseInterface $response) {
+    return $response->withStatus(500);
+});
+
+// class which implements __invoke with same signature as above
+$adrenaline->setErrorHandler(new ErrorHandler(new Request(), new MyErrorResponseGenerator());
+```
+For further information please have a look at: https://docs.zendframework.com/zend-stratigility/migration/to-v2/#error-handling
+
 ## <a name="howtodi"></a>How to integrate with a DI container
 If you want to use a DI container, you may use the according resolvers to make use of it:
 
