@@ -146,12 +146,12 @@ $adrenaline->setErrorHandler(new MyCustomErrorHandlerClass());
 ```
 We recommend to use the new errorhandling since using the "old" error handler may become deprecated in adrenaline also after a while:
 ```php
-$adrenaline->setErrorHandler(new ErrorHandler(new Request(), function ($err, ServerRequestInterface $request, ResponseInterface $response) {
+$adrenaline->setErrorHandler(new ErrorHandler(new Response(), function ($err, ServerRequestInterface $request, ResponseInterface $response) {
     return $response->withStatus(500);
 });
 
 // class which implements __invoke with same signature as above
-$adrenaline->setErrorHandler(new ErrorHandler(new Request(), new MyErrorResponseGenerator());
+$adrenaline->setErrorHandler(new ErrorHandler(new Response(), new MyErrorResponseGenerator());
 ```
 For further information please have a look at: https://docs.zendframework.com/zend-stratigility/migration/to-v2/#error-handling
 
