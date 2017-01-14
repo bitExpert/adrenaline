@@ -32,6 +32,7 @@ use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response\EmitterInterface;
+use Zend\Stratigility\Middleware\ErrorHandler;
 
 /**
  * Unit test for {@link \bitExpert\Adrenaline\Adrenaline}.
@@ -130,26 +131,63 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function setErrorHandlerWillBeCalledWhenExceptionIsThrown()
+    public function setLegacyErrorHandlerWillBeCalledWithExceptionThatIsThrown()
     {
         $app = new Adrenaline([], [], null, $this->emitter);
-        $called = false;
-        $errorHandler = function (ServerRequestInterface $request, ResponseInterface $response, $err) use (&$called) {
-            $called = true;
+        $handledException = null;
+        $thrownException = new \Exception();
+        $errorHandler = function (
+            ServerRequestInterface $request,
+            ResponseInterface $response,
+            $err
+        ) use (&$handledException) {
+            $handledException = $err;
             return $response;
         };
+
         $app->setErrorHandler($errorHandler);
         $app->addRoute(
             RouteBuilder::route()
                 ->get('/')
-                ->to(function (ServerRequestInterface $request, ResponseInterface $response) {
-                    throw new \Exception();
+                ->to(function (ServerRequestInterface $request, ResponseInterface $response) use ($thrownException) {
+                    throw $thrownException;
                 })
                 ->named('home')
                 ->build()
         );
         $app($this->request, $this->response);
-        $this->assertTrue($called);
+        $this->assertSame($thrownException, $handledException);
+    }
+
+    /**
+     * @test
+     */
+    public function setErrorHandlerWillBeCalledWithExceptionThatIsThrown()
+    {
+        $app = new Adrenaline([], [], null, $this->emitter);
+        $handledException = null;
+        $thrownException = new \Exception();
+
+        $errorHandler = new ErrorHandler(
+            $this->response,
+            function ($err, ServerRequestInterface $request, ResponseInterface $response) use (&$handledException) {
+                $handledException = $err;
+                return $response;
+            }
+        );
+
+        $app->setErrorHandler($errorHandler);
+        $app->addRoute(
+            RouteBuilder::route()
+                ->get('/')
+                ->to(function (ServerRequestInterface $request, ResponseInterface $response) use ($thrownException) {
+                    throw $thrownException;
+                })
+                ->named('home')
+                ->build()
+        );
+        $app($this->request, $this->response);
+        $this->assertSame($thrownException, $handledException);
     }
 
     /**
@@ -363,11 +401,21 @@ class AdrenalineUnitTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function outGetsCalledIfGivenAndNoErrorHandlerIsSet()
+    public function outGetsCalledIfGivenAndNoErrorHandlerIsSetAndNoErrorOccurs()
     {
         $called = false;
 
         $app = new Adrenaline([], [], null, $this->emitter);
+        $app->addRoute(
+            RouteBuilder::route()
+                ->get('/')
+                ->to(function ($request, $response, $next = null) {
+                    return $response;
+                })
+                ->named('home')
+                ->build()
+        );
+
         $app($this->request, $this->response, function () use (&$called) {
             $called = true;
         });

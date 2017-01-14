@@ -25,8 +25,11 @@ use bitExpert\Pathfinder\Router;
 use bitExpert\Pathfinder\RoutingResult;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Zend\Diactoros\Response;
 use Zend\Diactoros\Response\EmitterInterface;
 use Zend\Diactoros\Response\SapiEmitter;
+use Zend\Stratigility\Middleware\ErrorHandler;
+use Zend\Stratigility\NoopFinalHandler;
 
 /**
  * Class Adrenaline
@@ -90,7 +93,6 @@ class Adrenaline extends AdroitMiddleware
         $this->beforeEmitterMiddlewares = [];
 
         $this->emitter = $emitter ?: new SapiEmitter();
-
         $this->errorHandler = null;
     }
 
@@ -101,6 +103,10 @@ class Adrenaline extends AdroitMiddleware
     {
         $routingMiddleware = $this->getRoutingMiddleware($this->router, RoutingResult::class);
 
+        if ($this->errorHandler) {
+            $this->pipe($this->errorHandler);
+        }
+
         $this->pipeEach($this->beforeRoutingMiddlewares);
         $this->pipe($routingMiddleware);
 
@@ -110,43 +116,12 @@ class Adrenaline extends AdroitMiddleware
     }
 
     /**
-     * Wraps the given error handler for MiddlewarePipe usage
-     * The {@link FinalHandler
-     * Because of this wrapper it will only be called when an error occurs
-     *
-     * @param callable $errorHandler
-     * @param callable|null $out
-     * @return callable
-     */
-    protected function encapsulateErrorHandler(callable $errorHandler, callable $out = null) : callable
-    {
-        return function (
-            ServerRequestInterface $request,
-            ResponseInterface $response,
-            $err = null
-        ) use (
-            $errorHandler,
-            $out
-        ) {
-
-            if (!$err) {
-                if ($out) {
-                    $response = $out($request, $response);
-                }
-                return $response;
-            }
-
-            return $errorHandler($request, $response, $err);
-        };
-    }
-
-    /**
      * Adds a middleware to the stack which will be executed prior the routing middleware
      *
      * @param callable $middleware
      * @return Adrenaline
      */
-    public function beforeRouting(callable $middleware) : Adrenaline
+    public function beforeRouting(callable $middleware) : self
     {
         $this->beforeRoutingMiddlewares[] = $middleware;
         return $this;
@@ -158,7 +133,7 @@ class Adrenaline extends AdroitMiddleware
      * @param callable $middleware
      * @return Adrenaline
      */
-    public function beforeEmitter(callable $middleware) : Adrenaline
+    public function beforeEmitter(callable $middleware) : self
     {
         $this->beforeEmitterMiddlewares[] = $middleware;
         return $this;
@@ -172,18 +147,42 @@ class Adrenaline extends AdroitMiddleware
      */
     public function setErrorHandler(callable $errorHandler)
     {
+        $this->raiseThrowables();
+        $errorHandler = $this->normalizeErrorHandler($errorHandler);
         $this->errorHandler = $errorHandler;
     }
 
+    /**
+     * Checks if given $errorHandler is an instance {@link Zend\Stratigility\Middleware\ErrorHandler}
+     * If it is a "legacy" error handler, it will be converted due to backwards compatibility
+     *
+     * @param callable $errorHandler
+     * @return callable|ErrorHandler
+     */
+    protected function normalizeErrorHandler(callable $errorHandler)
+    {
+        if ($errorHandler instanceof ErrorHandler) {
+            return $errorHandler;
+        }
+
+        $legacyResponseGenerator = function (
+            $e,
+            ServerRequestInterface $request,
+            ResponseInterface $response
+        ) use ($errorHandler) {
+            return $errorHandler($request, $response, $e);
+        };
+
+        $errorHandler = new ErrorHandler(new Response(), $legacyResponseGenerator);
+        return $errorHandler;
+    }
+    
     /**
      * @inheritdoc
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out = null)
     {
-        if ($this->errorHandler) {
-            $out = $this->encapsulateErrorHandler($this->errorHandler, $out);
-        }
-
+        $out = $out ?: new NoopFinalHandler();
         $response = parent::__invoke($request, $response, $out);
         $this->emitter->emit($response);
     }
