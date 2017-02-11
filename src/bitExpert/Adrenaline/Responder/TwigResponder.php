@@ -96,7 +96,7 @@ class TwigResponder implements Responder
         }
 
         /** @var \bitExpert\Adrenaline\Domain\DomainPayload $payload */
-        $status = $payload->getStatus() ?: StatusCodeInterface::STATUS_OK;;
+        $status = $payload->getStatus() ?: StatusCodeInterface::STATUS_OK;
 
         return $response->withStatus($status);
     }
