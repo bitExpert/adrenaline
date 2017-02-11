@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adrenaline\Domain\DomainPayload;
+use Fig\Http\Message\StatusCodeInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamWrapper;
@@ -165,7 +166,7 @@ class StaticHtmlFileResponderUnitTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function returnsStatus200PerDefault()
+    public function returnsStatusOkPerDefault()
     {
         vfsStream::newFile('test.html')->at($this->root);
 
@@ -173,7 +174,7 @@ class StaticHtmlFileResponderUnitTest extends \PHPUnit_Framework_TestCase
 
         /** @var \Psr\Http\Message\ResponseInterface $response */
         $response = $this->responder->__invoke($payload, $this->response);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
     }
 
     /**

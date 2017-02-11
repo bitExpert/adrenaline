@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adroit\Domain\Payload;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -53,7 +54,7 @@ class JsonResponder implements Responder
         }
 
         /** @var \bitExpert\Adrenaline\Domain\DomainPayload $payload */
-        $status = $payload->getStatus() ?: 200;
+        $status = $payload->getStatus() ?: StatusCodeInterface::STATUS_OK;
 
         return $response->withStatus($status);
     }

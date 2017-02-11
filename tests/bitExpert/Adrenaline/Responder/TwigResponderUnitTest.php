@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adrenaline\Domain\DomainPayload;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response;
 
@@ -93,7 +94,7 @@ class TwigResponderUnitTest extends \PHPUnit_Framework_TestCase
         $response->getBody()->rewind();
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
         $this->assertEquals(['text/html'], $response->getHeader('Content-Type'));
         $this->assertEquals('<html>', $response->getBody()->getContents());
     }
@@ -113,7 +114,7 @@ class TwigResponderUnitTest extends \PHPUnit_Framework_TestCase
         $response = $responder($this->domainPayload, $this->response);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
         $this->assertEquals(['text/html'], $response->getHeader('Content-Type'));
         $this->assertTrue($response->hasHeader('X-Sender'));
     }
@@ -159,6 +160,6 @@ class TwigResponderUnitTest extends \PHPUnit_Framework_TestCase
         /** @var ResponseInterface $response */
         $response = $responder($domainPayload, $this->response);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
     }
 }
