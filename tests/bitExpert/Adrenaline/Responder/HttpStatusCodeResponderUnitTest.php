@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adrenaline\Domain\DomainPayload;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response;
 
@@ -41,12 +42,12 @@ class HttpStatusCodeResponderUnitTest extends \PHPUnit_Framework_TestCase
      */
     public function responseCodeIsPassedToResponseObject()
     {
-        $responder = new HttpStatusCodeResponder(200);
+        $responder = new HttpStatusCodeResponder(StatusCodeInterface::STATUS_OK);
         $domainPayload = new DomainPayload('test');
         /** @var ResponseInterface $response */
         $response = $responder($domainPayload, $this->response);
 
-        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
     }
 
     /**

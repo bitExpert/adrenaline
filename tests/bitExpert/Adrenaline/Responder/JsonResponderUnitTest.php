@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace bitExpert\Adrenaline\Responder;
 
 use bitExpert\Adrenaline\Domain\DomainPayload;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response;
 
@@ -55,7 +56,7 @@ class JsonResponderUnitTest extends \PHPUnit_Framework_TestCase
         $response->getBody()->rewind();
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
         $this->assertEquals(['application/json'], $response->getHeader('Content-Type'));
         $this->assertJson($response->getBody()->getContents());
     }
@@ -72,7 +73,7 @@ class JsonResponderUnitTest extends \PHPUnit_Framework_TestCase
         $response = $responder($domainPayload, $this->response);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
         $this->assertEquals(['application/json'], $response->getHeader('Content-Type'));
         $this->assertTrue($response->hasHeader('X-Sender'));
     }
@@ -96,12 +97,12 @@ class JsonResponderUnitTest extends \PHPUnit_Framework_TestCase
      */
     public function respectsStatusCodeSetInPayload()
     {
-        $domainPayload = (new DomainPayload('test'))->withStatus(400);
+        $domainPayload = (new DomainPayload('test'))->withStatus(StatusCodeInterface::STATUS_BAD_REQUEST);
         $responder = $this->responder;
         /** @var ResponseInterface $response */
         $response = $responder($domainPayload, $this->response);
 
-        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_BAD_REQUEST, $response->getStatusCode());
     }
 
     /**
@@ -114,6 +115,6 @@ class JsonResponderUnitTest extends \PHPUnit_Framework_TestCase
         /** @var ResponseInterface $response */
         $response = $responder($domainPayload, $this->response);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
     }
 }

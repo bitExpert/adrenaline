@@ -23,6 +23,7 @@ use bitExpert\Pathfinder\Route;
 use bitExpert\Pathfinder\RouteBuilder;
 use bitExpert\Pathfinder\Router;
 use bitExpert\Pathfinder\RoutingResult;
+use Fig\Http\Message\RequestMethodInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response;
@@ -297,7 +298,7 @@ class Adrenaline extends AdroitMiddleware
      */
     public function put(string $name, string $path, $target, array $matchers = []) : self
     {
-        $route = $this->createRoute(['PUT'], $name, $path, $target, $matchers);
+        $route = $this->createRoute([RequestMethodInterface::METHOD_PUT], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -313,7 +314,7 @@ class Adrenaline extends AdroitMiddleware
      */
     public function delete(string $name, string $path, $target, array $matchers = []) : self
     {
-        $route = $this->createRoute(['DELETE'], $name, $path, $target, $matchers);
+        $route = $this->createRoute([RequestMethodInterface::METHOD_DELETE], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -329,7 +330,7 @@ class Adrenaline extends AdroitMiddleware
      */
     public function options(string $name, string $path, $target, array $matchers = []) : self
     {
-        $route = $this->createRoute(['OPTIONS'], $name, $path, $target, $matchers);
+        $route = $this->createRoute([RequestMethodInterface::METHOD_OPTIONS], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
@@ -345,7 +346,7 @@ class Adrenaline extends AdroitMiddleware
      */
     public function patch(string $name, string $path, $target, array $matchers = []) : self
     {
-        $route = $this->createRoute(['PATCH'], $name, $path, $target, $matchers);
+        $route = $this->createRoute([RequestMethodInterface::METHOD_PATCH], $name, $path, $target, $matchers);
         $this->addRoute($route);
         return $this;
     }
