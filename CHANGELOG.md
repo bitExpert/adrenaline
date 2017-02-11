@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.3.0
+
+### Added
+
+- [#14](https://github.com/bitExpert/adrenaline/pull/14) Add fig/http-message-util to fix #12
+- [#12](https://github.com/bitExpert/adrenaline/issues/12) Include the PSR-7 Request and Method Utilities
+- [#13](https://github.com/bitExpert/adrenaline/issues/13) fix/stratigility update
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#11](https://github.com/bitExpert/adrenaline/issues/11) fix/stratigility update
+- [#9](https://github.com/bitExpert/adrenaline/issues/9) Stratigility upgrade shows warning
+
 ## 0.2.0
 
 ### Added
