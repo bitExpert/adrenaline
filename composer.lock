@@ -4,26 +4,26 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f4ecb5c5095106855b23e17d6a494f6d",
+    "content-hash": "94bb7ef737ce3caecae26268295e5a68",
     "packages": [
         {
             "name": "bitexpert/adroit",
-            "version": "v0.6.0",
+            "version": "v0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bitExpert/adroit.git",
-                "reference": "6f6cf4ee81899d82737d02198f4607bda6c7ed53"
+                "reference": "0e7877aa70dc4d61f14cb766eeaefc45cb14184e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bitExpert/adroit/zipball/6f6cf4ee81899d82737d02198f4607bda6c7ed53",
-                "reference": "6f6cf4ee81899d82737d02198f4607bda6c7ed53",
+                "url": "https://api.github.com/repos/bitExpert/adroit/zipball/0e7877aa70dc4d61f14cb766eeaefc45cb14184e",
+                "reference": "0e7877aa70dc4d61f14cb766eeaefc45cb14184e",
                 "shasum": ""
             },
             "require": {
                 "bitexpert/slf4psrlog": "^0.1.0",
-                "container-interop/container-interop": "^1.1.0",
                 "php": "^7.0",
+                "psr/container": "^1.0",
                 "psr/http-message": "^1.0",
                 "zendframework/zend-stratigility": "^1.3.0"
             },
@@ -60,7 +60,7 @@
                 }
             ],
             "description": "PSR-7 Middleware based on the ADR (Action Domain Responder) paradigm.",
-            "time": "2017-02-11T09:41:08+00:00"
+            "time": "2017-02-15T10:38:41+00:00"
         },
         {
             "name": "bitexpert/pathfinder",
@@ -163,33 +163,6 @@
             "time": "2015-10-18T15:43:07+00:00"
         },
         {
-            "name": "container-interop/container-interop",
-            "version": "1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/container-interop/container-interop.git",
-                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/container-interop/container-interop/zipball/fc08354828f8fd3245f77a66b9e23a6bca48297e",
-                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Interop\\Container\\": "src/Interop/Container/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
-            "time": "2014-12-30T15:22:37+00:00"
-        },
-        {
             "name": "fig/http-message-util",
             "version": "1.1.2",
             "source": {
@@ -290,6 +263,55 @@
                 "response"
             ],
             "time": "2016-09-25T13:30:27+00:00"
+        },
+        {
+            "name": "psr/container",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/container.git",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Container\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common Container Interface (PHP FIG PSR-11)",
+            "homepage": "https://github.com/php-fig/container",
+            "keywords": [
+                "PSR-11",
+                "container",
+                "container-interface",
+                "container-interop",
+                "psr"
+            ],
+            "time": "2017-02-14T16:28:37+00:00"
         },
         {
             "name": "psr/http-message",
@@ -816,6 +838,33 @@
                 "silex"
             ],
             "time": "2012-12-19T10:50:58+00:00"
+        },
+        {
+            "name": "container-interop/container-interop",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/container-interop/container-interop.git",
+                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/container-interop/container-interop/zipball/fc08354828f8fd3245f77a66b9e23a6bca48297e",
+                "reference": "fc08354828f8fd3245f77a66b9e23a6bca48297e",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Interop\\Container\\": "src/Interop/Container/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
+            "time": "2014-12-30T15:22:37+00:00"
         },
         {
             "name": "doctrine/annotations",
