@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.4.0
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- [#16](https://github.com/bitExpert/adrenaline/pull/16) Upgrade to Adroit 0.7.0
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.3.0
 
 ### Added
