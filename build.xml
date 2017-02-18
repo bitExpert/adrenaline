@@ -13,6 +13,15 @@
         </exec>
     </target>
 
+    <target name="cs-fix">
+        <exec executable="./vendor/bin/phpcbf"
+              passthru="true"
+              checkreturn="false">
+            <arg path="${phing.dir}/src"/>
+            <arg path="${phing.dir}/tests"/>
+        </exec>
+    </target>
+
     <target name="lint">
         <exec executable="php"
               passthru="true"
