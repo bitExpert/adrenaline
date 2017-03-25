@@ -4,6 +4,7 @@ A PSR-7 micro framework built on top of the Adroit middleware to speed up your d
 
 [![Build Status](https://travis-ci.org/bitExpert/adrenaline.svg?branch=master)](https://travis-ci.org/bitExpert/adrenaline)
 [![Dependency Status](https://www.versioneye.com/user/projects/57d9b3a71b70a70039625600/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57d9b3a71b70a70039625600)
+[![Coverage Status](https://coveralls.io/repos/github/bitExpert/adrenaline/badge.svg?branch=master)](https://coveralls.io/github/bitExpert/adrenaline?branch=master)
 
 - [Getting started](#gettingstarted)
 - [How to configure action resolvers](#howtoactionresolvers)
